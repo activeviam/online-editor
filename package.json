@@ -1,0 +1,17 @@
+{
+  "name": "online-editor",
+  "version": "0.1.0",
+  "description": "Project for CentraleSupelec students 2020 to develop an online code editor",
+  "main": "index.js",
+  "repository": "git@github.com:Nouzbe/online-editor.git",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+  },
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
