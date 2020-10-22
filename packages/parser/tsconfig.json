@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "declarationDir": "./dist",
+    "rootDir": "./src",
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext"],
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true
+  },
+  "include": ["./src"],
+  "exclude": ["src/**/*.test.ts"]
+}
