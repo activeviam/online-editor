@@ -1,5 +1,5 @@
 {
-  "name": "online-editor",
+  "name": "@online-editor-2020/monorepo",
   "version": "0.1.0",
   "description": "Project for CentraleSupelec students 2020 to develop an online code editor",
   "main": "index.js",

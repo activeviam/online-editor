@@ -1,5 +1,5 @@
 {
-  "name": "editor",
+  "name": "@online-editor-2020/editor",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
