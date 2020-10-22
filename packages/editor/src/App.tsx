@@ -1,8 +1,12 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { parse } from "@online-editor-2020/parser";
+
+import logo from "./logo.svg";
+import "./App.css";
 
 function App() {
+  parse("Moad and Stefano");
+
   return (
     <div className="App">
       <header className="App-header">

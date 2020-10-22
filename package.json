@@ -9,7 +9,7 @@
   "scripts": {
     "build": "lerna run build",
     "lint": "lerna run lint",
-    "start": "lerna run start",
+    "start": "lerna run start --parallel",
     "test": "lerna run test --"
   },
   "devDependencies": {
