@@ -10,6 +10,7 @@
     "build": "lerna run build",
     "lint": "lerna run lint",
     "start": "lerna run start",
+    "test": "lerna run test --"
   },
   "devDependencies": {
     "lerna": "^3.22.1"
