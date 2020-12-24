@@ -1,30 +1,18 @@
 import React from "react";
-import { parse } from "@online-editor-2020/parser";
+//import { parse } from "@online-editor-2020/parser";
+import { mockInput } from './mock_token'
+import { TokenComponent } from './token_renderer'
 
-import logo from "./logo.svg";
-import "./App.css";
-
-function App() {
-  parse("Moad and Stefano");
-
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => 
+  <div
+    style={{
+      position: 'absolute', left: '50%', top: '50%',
+      transform: 'translate(-50%, -50%)'
+    }}
+  >
+    {mockInput.map((token, index) => 
+      <TokenComponent token={token} key={index}/>
+    )}
+  </div>
 
 export default App;
