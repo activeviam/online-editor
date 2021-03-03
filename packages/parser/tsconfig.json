@@ -13,7 +13,8 @@
     "noEmitOnError": true,
     "isolatedModules": true,
     "noUnusedLocals": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "composite": true
   },
   "include": ["./src"],
   "exclude": ["src/**/*.test.ts"]

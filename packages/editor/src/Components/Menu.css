@@ -1,0 +1,11 @@
+.menu {
+  padding-right: 1%;
+  padding-top: 5px;
+  float: right;
+}
+
+.divider {
+  width: 5px;
+  height: auto;
+  display: inline-block;
+}
