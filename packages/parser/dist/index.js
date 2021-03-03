@@ -9,13 +9,5 @@ Object.defineProperty(exports, "parse", {
     return _parse.parse;
   }
 });
-Object.defineProperty(exports, "tokenize", {
-  enumerable: true,
-  get: function () {
-    return _tokenize.tokenize;
-  }
-});
 
 var _parse = require("./parse");
-
-var _tokenize = require("./tokenize");
