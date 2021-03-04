@@ -6,7 +6,9 @@ export const uploadGrammarFromFile = async (selectedFile: File) => {
     data.append("file", selectedFile);
     //const visitor = await axios
     await axios
-      .post("http://localhost:5000/generate-visitor-from-file", data)
+      .post("http://localhost:5000/generate-visitor-from-file", data, {
+        withCredentials: true,
+      })
       //.then((response) => response.data.visitor)
       .catch((error) => console.log(error));
     //return visitor;
@@ -16,9 +18,13 @@ export const uploadGrammarFromFile = async (selectedFile: File) => {
 export const uploadGrammar = async (grammar: string) => {
   //const visitor = await axios
   await axios
-    .post("http://localhost:5000/generate-visitor", {
-      grammar: grammar,
-    })
+    .post(
+      "http://localhost:5000/generate-visitor",
+      {
+        grammar: grammar,
+      },
+      { withCredentials: true }
+    )
     //.then((response) => [response.data.visitor])
     .catch(console.error);
   //return visitor;
@@ -30,9 +36,13 @@ export const parseUserDefinedLanguage = async (
   userDefinedLanguage: string
 ): Promise<ParsedType> => {
   const parsed = await axios
-    .post("http://localhost:5000/parse", {
-      userDefinedLanguage: userDefinedLanguage,
-    })
+    .post(
+      "http://localhost:5000/parse",
+      {
+        userDefinedLanguage: userDefinedLanguage,
+      },
+      { withCredentials: true }
+    )
     .then((response) => response.data.parsed)
     .catch(console.error);
   return parsed;
