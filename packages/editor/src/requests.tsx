@@ -1,14 +1,20 @@
 import axios from "axios";
 
+const requestUrl = `${process.env.REACT_APP_REQUEST_BASE_URL}:${process.env.REACT_APP_REQUEST_PORT}`;
+
 export const uploadGrammarFromFile = async (selectedFile: File) => {
   if (selectedFile) {
     const data = new FormData();
     data.append("file", selectedFile);
     //const visitor = await axios
     await axios
-      .post("http://localhost:5000/generate-visitor-from-file", data, {
-        withCredentials: true,
-      })
+      .post(
+        requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR_FROM_FILE,
+        data,
+        {
+          withCredentials: true,
+        }
+      )
       //.then((response) => response.data.visitor)
       .catch((error) => console.log(error));
     //return visitor;
@@ -19,7 +25,7 @@ export const uploadGrammar = async (grammar: string) => {
   //const visitor = await axios
   await axios
     .post(
-      "http://localhost:5000/generate-visitor",
+      requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR,
       {
         grammar: grammar,
       },
@@ -37,7 +43,7 @@ export const parseUserDefinedLanguage = async (
 ): Promise<ParsedType> => {
   const parsed = await axios
     .post(
-      "http://localhost:5000/parse",
+      requestUrl + process.env.REACT_APP_ENDPOINT_PARSE,
       {
         userDefinedLanguage: userDefinedLanguage,
       },
