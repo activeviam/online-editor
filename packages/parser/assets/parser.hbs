@@ -1,0 +1,12 @@
+import { {{grammarName}}Parser, {{toTitleCase grammarRoot}}Context } from "./{{grammarName}}Parser";
+import { {{grammarName}}Lexer } from "./{{grammarName}}Lexer";
+import { ANTLRInputStream, CommonTokenStream } from "antlr4ts";
+
+export default function parseAndGetASTRoot(code: string): {{toTitleCase grammarRoot}}Context {
+    const inputStream = new ANTLRInputStream(code);
+    const lexer = new {{grammarName}}Lexer(inputStream);
+    const tokenStream = new CommonTokenStream(lexer);
+    const parser = new {{grammarName}}Parser(tokenStream);
+
+    return parser.{{grammarRoot}}();
+}
