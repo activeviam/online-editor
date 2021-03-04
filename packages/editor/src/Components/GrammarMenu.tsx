@@ -1,63 +1,58 @@
-import React, { useState } from "react";
+import React from "react";
 
 import "./Menu.css";
 
-import {
-  uploadGrammar,
-  uploadGrammarFromFile,
-} from "@online-editor-2020/editor/src/requests";
-
 interface IProps {
   //onChangeVisitor: (visitor: string) => void;
-  grammar: string;
+  onChangeRootNode: (rootNode: string) => void;
+  onChangeFilePicker: (file: File) => void;
+  onClickCompileGrammar: () => void;
+  onClickCompileGrammarFromFile: () => void;
 }
 
 export const GrammarMenu = (props: IProps) => {
-  const [selectedFile, setSelectedFile] = useState<File>();
-
-  const uploadGrammarOnClickHandler = () => {
-    uploadGrammar(props.grammar);
-    //.then(([visitor]) => {
-    //  props.onChangeVisitor(visitor);
-    //})
-    //.catch(console.log);
-  };
-
-  const uploadGrammarFromFileOnClickHandler = () => {
-    if (selectedFile === undefined) {
-      console.error("File is undefined.");
-      return;
-    }
-    uploadGrammarFromFile(selectedFile);
-    //.then(props.onChangeVisitor)
-    //.catch(console.log);
-  };
-
-  const filePickerOnChangeHandler = (
+  const handleFilePickerInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (e.target.files === null) {
       console.error("No file selected.");
       return;
     }
-    setSelectedFile(e.target.files[0]);
+    props.onChangeFilePicker(e.target.files[0]);
   };
 
   return (
-    <div className="menu">
-      <button>Export Project</button>
-      <div className="divider"></div>
-      <input
-        type="file"
-        name="file"
-        onChange={filePickerOnChangeHandler}
-      ></input>
-      <div className="divider"></div>
-      <button onClick={uploadGrammarFromFileOnClickHandler}>
-        Compile Grammar from File
-      </button>
-      <div className="divider"></div>
-      <button onClick={uploadGrammarOnClickHandler}>Compile Grammar</button>
+    <div>
+      <ul className="menuleft">
+        <li>
+          <input
+            type="file"
+            name="file"
+            required
+            onChange={handleFilePickerInputChange}
+          ></input>
+        </li>
+        <li>
+          <button onClick={props.onClickCompileGrammarFromFile}>
+            Compile Grammar from File
+          </button>
+        </li>
+      </ul>
+      <ul className="menuright">
+        <li>
+          <form>
+            <input
+              onChange={(e) => {
+                props.onChangeRootNode(e.target.value);
+              }}
+              placeholder="Grammar Root Node"
+            ></input>
+          </form>
+        </li>
+        <li>
+          <button onClick={props.onClickCompileGrammar}>Compile Grammar</button>
+        </li>
+      </ul>
     </div>
   );
 };

@@ -1,8 +1,16 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow: hidden; /* Hide scrollbars */
+}
+
 .split-screen {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  height: 95vh;
 }
 
 .left-pane {
@@ -15,4 +23,13 @@
 
 .editor {
   border-style: ridge;
+}
+
+.grammar-menu {
+  height: 10vh;
+}
+
+.user-defined-language-menu {
+  height: 10vh;
+  text-align: center;
 }

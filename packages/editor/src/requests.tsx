@@ -2,10 +2,14 @@ import axios from "axios";
 
 const requestUrl = `${process.env.REACT_APP_REQUEST_BASE_URL}:${process.env.REACT_APP_REQUEST_PORT}`;
 
-export const uploadGrammarFromFile = async (selectedFile: File) => {
+export const uploadGrammarFromFile = async (
+  selectedFile: File,
+  rootNode: string
+) => {
   if (selectedFile) {
     const data = new FormData();
     data.append("file", selectedFile);
+    data.append("rootNode", rootNode);
     //const visitor = await axios
     await axios
       .post(
@@ -16,18 +20,19 @@ export const uploadGrammarFromFile = async (selectedFile: File) => {
         }
       )
       //.then((response) => response.data.visitor)
-      .catch((error) => console.log(error));
+      .catch(console.error);
     //return visitor;
   }
 };
 
-export const uploadGrammar = async (grammar: string) => {
+export const uploadGrammar = async (grammar: string, rootNode: string) => {
   //const visitor = await axios
   await axios
     .post(
       requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR,
       {
         grammar: grammar,
+        rootNode: rootNode,
       },
       { withCredentials: true }
     )

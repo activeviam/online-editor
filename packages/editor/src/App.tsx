@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import "./App.css";
 import Editor from "@monaco-editor/react";
 
-import { GrammarMenu } from "./Components/GrammarMenu";
-import { UserDefinedLanguageMenu } from "./Components/UserDefinedLanguageMenu";
+import { GrammarMenu } from "@online-editor-2020/editor/src/Components/GrammarMenu";
+import { UserDefinedLanguageMenu } from "@online-editor-2020/editor/src/Components/UserDefinedLanguageMenu";
+import {
+  uploadGrammar,
+  uploadGrammarFromFile,
+  parseUserDefinedLanguage,
+} from "@online-editor-2020/editor/src/requests";
 
 const App = () => {
   const [grammar, setGrammar] = useState("Your Grammar");
@@ -11,8 +16,10 @@ const App = () => {
     "Your Language"
   );
   //const [visitor, setVisitor] = useState("Visitor Code");
+  const [rootNode, setRootNode] = useState(""); // Grammar Root Node
+  const [selectedFile, setSelectedFile] = useState<File>(); // Gramar File
 
-  const onChangeGrammar = (changedGrammar: string | undefined) => {
+  const handleGrammarChange = (changedGrammar: string | undefined) => {
     if (changedGrammar === undefined) {
       console.error("Undefined grammar state.");
       return;
@@ -20,7 +27,19 @@ const App = () => {
     setGrammar(changedGrammar);
   };
 
-  const onChangeUserDefinedLanguage = (
+  const handleCompileGrammarClick = () => {
+    uploadGrammar(grammar, rootNode);
+  };
+
+  const handleCompileGrammarFromFileClick = () => {
+    if (selectedFile === undefined) {
+      console.error("File is undefined.");
+      return;
+    }
+    uploadGrammarFromFile(selectedFile, rootNode);
+  };
+
+  const handleUserDefinedLanguageChange = (
     changedUserDefinedLanguage: string | undefined
   ) => {
     if (changedUserDefinedLanguage === undefined) {
@@ -30,37 +49,42 @@ const App = () => {
     setUserDefinedLanguage(changedUserDefinedLanguage);
   };
 
+  const handleParseClick = async () => {
+    const parsed = await parseUserDefinedLanguage(userDefinedLanguage);
+    console.log(parsed);
+  };
+
   return (
     <div className="split-screen">
       <div className="left-pane">
         <div className="editor">
           <Editor
-            height="95vh"
+            height="85vh"
             value={grammar}
-            onChange={onChangeGrammar}
+            onChange={handleGrammarChange}
           ></Editor>
         </div>
-        <div>
+        <div className="grammar-menu">
           <GrammarMenu
-            grammar={grammar}
             //onChangeVisitor={setVisitor}
+            onChangeRootNode={setRootNode}
+            onChangeFilePicker={setSelectedFile}
+            onClickCompileGrammar={handleCompileGrammarClick}
+            onClickCompileGrammarFromFile={handleCompileGrammarFromFileClick}
           ></GrammarMenu>
         </div>
       </div>
       <div className="right-pane">
         <div className="editor">
           <Editor
-            height="95vh"
-            onChange={onChangeUserDefinedLanguage}
+            height="85vh"
+            onChange={handleUserDefinedLanguageChange}
             value={userDefinedLanguage}
           ></Editor>
         </div>
-        <div>
+        <div className="user-defined-language-menu">
           <UserDefinedLanguageMenu
-            userDefinedLanguage={userDefinedLanguage}
-            onChangeParsed={(parsed) => {
-              console.log(parsed);
-            }}
+            onClickParse={handleParseClick}
           ></UserDefinedLanguageMenu>
         </div>
       </div>
