@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Button } from "@material-ui/core";
+
 import "./Menu.css";
 
 interface IProps {
@@ -8,12 +10,10 @@ interface IProps {
 
 export const UserDefinedLanguageMenu = (props: IProps) => {
   return (
-    <ul className="menuright">
-      <li>
-        <button onClick={props.onClickParse}>
-          Parse User Defined Language
-        </button>
-      </li>
-    </ul>
+    <div className="menuright">
+      <Button variant="outlined" color="primary" onClick={props.onClickParse}>
+        Parse User Defined Language
+      </Button>
+    </div>
   );
 };

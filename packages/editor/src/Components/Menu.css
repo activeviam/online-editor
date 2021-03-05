@@ -1,10 +1,11 @@
 .menuright {
   padding-right: 10%;
   float: right;
+  display: flex;
 }
 
 .divider {
-  width: 3px;
+  width: 15px;
   height: auto;
   display: inline-block;
 }
@@ -12,13 +13,9 @@
 .menuleft {
   padding-left: 10%;
   float: left;
+  display: flex;
 }
 
-li {
-  margin: 15px;
-}
-
-ul {
-  list-style-type: none;
-  margin: auto;
+.invisible-input {
+  display: none;
 }
