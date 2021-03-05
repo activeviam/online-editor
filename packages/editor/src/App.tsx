@@ -9,12 +9,11 @@ import {
   uploadGrammarFromFile,
   parseUserDefinedLanguage,
 } from "@online-editor-2020/editor/src/requests";
+import { helloGrammar } from "@online-editor-2020/editor/src/GrammarExamples/HelloGrammar";
 
 const App = () => {
-  const [grammar, setGrammar] = useState("Your Grammar");
-  const [userDefinedLanguage, setUserDefinedLanguage] = useState(
-    "Your Language"
-  );
+  const [grammar, setGrammar] = useState(helloGrammar);
+  const [userDefinedLanguage, setUserDefinedLanguage] = useState("hello bob");
   //const [visitor, setVisitor] = useState("Visitor Code");
   const [rootNode, setRootNode] = useState(""); // Grammar Root Node
   const [selectedFile, setSelectedFile] = useState<File>(); // Gramar File
