@@ -1,5 +1,5 @@
 .menuright {
-  padding-right: 10%;
+  padding-right: 5%;
   float: right;
   display: flex;
 }
@@ -11,7 +11,7 @@
 }
 
 .menuleft {
-  padding-left: 10%;
+  padding-left: 5%;
   float: left;
   display: flex;
 }

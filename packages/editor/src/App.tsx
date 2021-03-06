@@ -1,7 +1,7 @@
 import React from "react";
 
-import { LeftPanel as LeftPane } from "./Components/LeftPane";
-import { RightPanel as RightPane } from "./Components/RightPane";
+import { LeftPane } from "./Components/LeftPane";
+import { RightPane } from "./Components/RightPane";
 import "./App.css";
 
 const App = () => {

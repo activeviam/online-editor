@@ -1,0 +1,15 @@
+:root {
+  --menu-height: calc(0.15 * (100vh - 74px));
+}
+
+.grammar-menu {
+  height: var(--menu-height);
+}
+
+.user-defined-language-menu {
+  height: var(--menu-height);
+}
+
+.editor {
+  border-style: ridge;
+}

@@ -5,33 +5,16 @@ React component containing the grammar editor and buttons.
 */
 
 import Editor from "@monaco-editor/react";
-import { AppBar, Box, Tab, Tabs, Typography } from "@material-ui/core";
+import { AppBar, Tab, Tabs } from "@material-ui/core";
 
 import { GrammarMenu } from "./GrammarMenu";
 import { helloGrammar } from "../GrammarExamples/HelloGrammar";
 import { uploadGrammar, uploadGrammarFromFile } from "../requests";
+import { TabPanel } from "../Misc/TabPanel";
 
-const TabPanel = (props: any) => {
-  const { children, value, index, ...other } = props;
+import "./Panes.css";
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box p={3}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-};
-
-export const LeftPanel = () => {
+export const LeftPane = () => {
   const [grammar, setGrammar] = useState(helloGrammar);
   const [rootNode, setRootNode] = useState(""); // Grammar Root Node
   const [selectedFile, setSelectedFile] = useState<File>(); // Gramar File
@@ -73,8 +56,8 @@ export const LeftPanel = () => {
       <TabPanel value={tabValue} index={0}>
         <div className="editor">
           <Editor
-            height="80vh"
             value={grammar}
+            height="calc(0.85 * (100vh - 74px)"
             onChange={handleGrammarChange}
           ></Editor>
         </div>

@@ -15,21 +15,9 @@ body {
 
 .left-pane {
   width: 50%;
+  height: 100vh;
 }
 
 .right-pane {
   width: 50%;
-}
-
-.editor {
-  border-style: ridge;
-}
-
-.grammar-menu {
-  height: 10vh;
-}
-
-.user-defined-language-menu {
-  height: 10vh;
-  text-align: center;
 }

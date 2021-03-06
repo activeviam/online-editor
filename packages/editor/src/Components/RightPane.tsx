@@ -5,32 +5,15 @@ React component containing the user defined language editor and button.
 */
 
 import Editor from "@monaco-editor/react";
-import { AppBar, Box, Tab, Tabs, Typography } from "@material-ui/core";
+import { AppBar, Tab, Tabs } from "@material-ui/core";
 
 import { parseUserDefinedLanguage } from "../requests";
 import { UserDefinedLanguageMenu } from "./UserDefinedLanguageMenu";
+import { TabPanel } from "../Misc/TabPanel";
 
-const TabPanel = (props: any) => {
-  const { children, value, index, ...other } = props;
+import "./Panes.css";
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box p={3}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-};
-
-export const RightPanel = () => {
+export const RightPane = () => {
   const [userDefinedLanguage, setUserDefinedLanguage] = useState("hello bob");
   //const [visitor, setVisitor] = useState("Visitor Code");
   const [tabValue, setTabValue] = useState(0);
@@ -65,7 +48,7 @@ export const RightPanel = () => {
       <TabPanel value={tabValue} index={0}>
         <div className="editor">
           <Editor
-            height="80vh"
+            height="calc(0.85 * (100vh - 74px)"
             onChange={handleUserDefinedLanguageChange}
             value={userDefinedLanguage}
           ></Editor>
