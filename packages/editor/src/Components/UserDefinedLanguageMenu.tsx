@@ -10,10 +10,13 @@ interface IProps {
 
 export const UserDefinedLanguageMenu = (props: IProps) => {
   return (
-    <div className="menuright">
-      <Button variant="outlined" color="primary" onClick={props.onClickParse}>
-        Parse User Defined Language
-      </Button>
+    <div className="whole-menu">
+      <div className="menu-left" />
+      <div className="menu-right">
+        <Button variant="outlined" color="primary" onClick={props.onClickParse}>
+          Parse User Defined Language
+        </Button>
+      </div>
     </div>
   );
 };

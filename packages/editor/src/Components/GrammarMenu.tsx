@@ -23,18 +23,19 @@ export const GrammarMenu = (props: IProps) => {
   };
 
   return (
-    <div>
-      <div className="menuleft">
+    <div className="whole-menu">
+      <div className="menu-left">
         <form>
           <TextField
             onChange={(e) => {
               props.onChangeRootNode(e.target.value);
             }}
             placeholder="Grammar Root Node"
+            defaultValue="root"
           ></TextField>
         </form>
       </div>
-      <div className="menuright">
+      <div className="menu-right">
         <input
           className="invisible-input"
           id="contained-button-file"

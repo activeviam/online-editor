@@ -1,7 +1,15 @@
-.menuright {
-  padding-right: 5%;
-  float: right;
+.whole-menu {
+  height: 100%;
   display: flex;
+  align-items: stretch;
+}
+
+.menu-right {
+  padding-right: 5%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 60%;
 }
 
 .divider {
@@ -10,10 +18,12 @@
   display: inline-block;
 }
 
-.menuleft {
+.menu-left {
   padding-left: 5%;
-  float: left;
   display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 40%;
 }
 
 .invisible-input {

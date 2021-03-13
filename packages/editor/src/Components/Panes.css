@@ -1,15 +1,22 @@
-:root {
-  --menu-height: calc(0.15 * (100vh - 74px));
-}
-
 .grammar-menu {
-  height: var(--menu-height);
+  height: 10%;
 }
 
 .user-defined-language-menu {
-  height: var(--menu-height);
+  height: 10%;
 }
 
 .editor {
-  border-style: ridge;
+  height: 100%;
+}
+
+.tab-panel {
+  flex-grow: 1;
+}
+
+.whole-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }

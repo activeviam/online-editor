@@ -9,7 +9,7 @@ export const uploadGrammarFromFile = async (
   if (selectedFile) {
     const data = new FormData();
     data.append("file", selectedFile);
-    data.append("rootNode", rootNode);
+    data.append("grammarRoot", rootNode);
     //const visitor = await axios
     await axios
       .post(

@@ -4,8 +4,6 @@ import React from "react";
 This is used to define what tab will show depending on value.
 */
 
-import { Box, Typography } from "@material-ui/core";
-
 export const TabPanel = (props: any) => {
   const { children, value, index, ...other } = props;
 
@@ -15,15 +13,10 @@ export const TabPanel = (props: any) => {
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
+      className="tab-panel"
       {...other}
     >
-      {value === index && (
-        <Box p={3}>
-          <Typography component={"span"} variant={"body2"}>
-            {children}
-          </Typography>
-        </Box>
-      )}
+      {value === index && children}
     </div>
   );
 };

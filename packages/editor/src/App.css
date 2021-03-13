@@ -9,7 +9,6 @@ body {
 
 .split-screen {
   display: flex;
-  flex-direction: row;
   align-items: stretch;
 }
 
