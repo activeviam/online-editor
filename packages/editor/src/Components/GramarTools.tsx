@@ -9,7 +9,7 @@ import "./Panes.css";
 
 export const GramarTools = () => {
   const [grammar, setGrammar] = useState(helloGrammar);
-  const [rootNode, setRootNode] = useState("root"); // Grammar Root Node
+  const [grammarRoot, setGrammarRoot] = useState("root"); // Grammar Root Node
 
   const handleGrammarChange = (changedGrammar: string | undefined) => {
     if (changedGrammar === undefined) {
@@ -20,15 +20,22 @@ export const GramarTools = () => {
   };
 
   const handleCompileGrammarClick = () => {
-    uploadGrammar(grammar, rootNode);
+    if (grammarRoot === "") {
+      console.error("No Grammar Root defined.");
+      return;
+    }
+    uploadGrammar(grammar, grammarRoot);
   };
 
   const handleFilePickChange = (file: File) => {
     if (file === undefined) {
       console.error("File is undefined.");
       return;
+    } else if (grammarRoot === "") {
+      console.error("No Grammar Root defined.");
+      return;
     }
-    uploadGrammarFromFile(file, rootNode);
+    uploadGrammarFromFile(file, grammarRoot);
   };
 
   return (
@@ -39,7 +46,8 @@ export const GramarTools = () => {
       <div className="grammar-menu">
         <GrammarMenu
           //onChangeVisitor={setVisitor}
-          onChangeRootNode={setRootNode}
+          grammarRoot={grammarRoot}
+          onChangeRootNode={setGrammarRoot}
           onChangeFilePicker={handleFilePickChange}
           onClickCompileGrammar={handleCompileGrammarClick}
         />

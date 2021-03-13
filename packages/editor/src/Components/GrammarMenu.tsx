@@ -6,6 +6,7 @@ import "./Menu.css";
 
 interface IProps {
   //onChangeVisitor: (visitor: string) => void;
+  grammarRoot: string;
   onChangeRootNode: (rootNode: string) => void;
   onChangeFilePicker: (file: File) => void;
   onClickCompileGrammar: () => void;
@@ -32,6 +33,11 @@ export const GrammarMenu = (props: IProps) => {
             }}
             placeholder="Grammar Root Node"
             defaultValue="root"
+            error={props.grammarRoot === ""}
+            helperText={
+              props.grammarRoot === "" ? "Grammar Root Required!" : ""
+            }
+            required
           ></TextField>
         </form>
       </div>
