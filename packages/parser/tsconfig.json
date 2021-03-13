@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
-    "declarationDir": "./dist",
-    "rootDir": "./src",
-    "target": "ESNext",
-    "module": "ESNext",
-    "lib": ["ESNext"],
+    "outDir": "./dist",
+    "rootDir": "./",
+    "target": "ES6",
+    "module": "CommonJS",
     "declaration": true,
     "emitDeclarationOnly": true,
     "esModuleInterop": true,
@@ -13,9 +12,6 @@
     "noEmitOnError": true,
     "isolatedModules": true,
     "noUnusedLocals": true,
-    "noImplicitReturns": true,
-    "composite": true
-  },
-  "include": ["./src"],
-  "exclude": ["src/**/*.test.ts"]
+    "noImplicitReturns": true
+  }
 }
