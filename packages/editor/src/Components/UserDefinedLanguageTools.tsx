@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 
+/*
+Component containing the user defined language editor and its menu.
+*/
+
 import { FullHeightEditor } from "./FullHeightEditor";
 import { parseUserDefinedLanguage } from "../requests";
 import { UserDefinedLanguageMenu } from "./UserDefinedLanguageMenu";

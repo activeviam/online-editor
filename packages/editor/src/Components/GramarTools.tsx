@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 
+/*
+Component that contains the grammar editor and its menu.
+*/
+
 import { helloGrammar } from "../GrammarExamples/HelloGrammar";
 import { uploadGrammar, uploadGrammarFromFile } from "../requests";
 import { FullHeightEditor } from "./FullHeightEditor";

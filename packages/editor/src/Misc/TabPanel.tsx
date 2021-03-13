@@ -4,7 +4,14 @@ import React from "react";
 This is used to define what tab will show depending on value.
 */
 
-export const TabPanel = (props: any) => {
+interface IProps {
+  children: any;
+  value: number;
+  index: number;
+  other?: any;
+}
+
+export const TabPanel = (props: IProps) => {
   const { children, value, index, ...other } = props;
 
   return (
