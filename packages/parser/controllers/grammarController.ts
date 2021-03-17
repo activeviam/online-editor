@@ -70,6 +70,7 @@ const generateParserFile = (grammarName: string, directory: string) => {
 };
 
 const generateLexerFile = (
+
   grammarName: string,
   grammarRoot: string,
   directory: string,
@@ -101,6 +102,7 @@ const generateAstTreeFile = (
     grammarRoot: grammarRoot,
   });
   fs.writeFileSync(path.join(directory, "parseTree.ts"), source);
+
 };
 
 // Routes controllers
@@ -114,6 +116,7 @@ export const compileGrammarFile = (req: any, res: any) => {
     grammar.name = req.file.filename.split(".")[0];
     grammar.root = req.body.grammarRoot;
     req.session.grammar = grammar;
+
     runAntlr(req.file.filename, req.file.path, req.body.grammarRoot);
     return res.status(200).send(req.file);
   });
