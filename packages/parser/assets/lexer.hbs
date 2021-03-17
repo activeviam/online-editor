@@ -1,0 +1,9 @@
+import { {{grammarName}}Lexer } from "./{{grammarName}}Lexer";
+import { CharStreams } from "antlr4ts";
+
+export default function getLexer(code: string): {{grammarName}}Lexer {
+    const inputStream = CharStreams.fromString(code);
+    const lexer = new {{grammarName}}Lexer(inputStream);
+    
+    return lexer;
+}

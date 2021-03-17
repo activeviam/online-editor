@@ -8,6 +8,7 @@ import redis from "redis";
 import connectRedis from "connect-redis";
 
 import grammarRouter from "./routes/grammarRoutes";
+import codeRouter from "./routes/codeRoutes";
 
 dotenv.config();
 const RedisStore = connectRedis(session);
@@ -28,6 +29,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
+    origin: process.env.CORS_ORIGIN || "*",
   }),
 );
 
@@ -49,14 +51,13 @@ app.use(
   }),
 );
 
+// Routes
 app.use((req, res, next) => {
-  console.log(req.session, req.sessionID);
+  console.log(req.sessionID);
   next();
 });
-
-// Routes
-
 app.use("/grammar", grammarRouter);
+app.use("/code", codeRouter);
 
 // Start server
 
