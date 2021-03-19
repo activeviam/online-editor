@@ -6,11 +6,16 @@ React component containing the user defined language editor and button.
 
 import { AppBar, Tab, Tabs } from "@material-ui/core";
 import { TabPanel } from "../Misc/TabPanel";
-import { UserDefinedLanguageTools } from "./UserDefinedLanguageTools";
+import { CustomLanguageTools } from "./CustomLanguageTools";
+import { GrammarRequestResult } from "../Types/GrammarTypes";
 
 import "./Panes.css";
 
-export const RightPane = () => {
+interface IProps {
+  grammarResponse: GrammarRequestResult | undefined;
+}
+
+export const RightPane = (props: IProps) => {
   //const [visitor, setVisitor] = useState("Visitor Code");
   const [tabValue, setTabValue] = useState(0);
 
@@ -23,11 +28,11 @@ export const RightPane = () => {
             setTabValue(newValue);
           }}
         >
-          <Tab label="User Defined Language"></Tab>
+          <Tab label="Custom Language"></Tab>
         </Tabs>
       </AppBar>
       <TabPanel value={tabValue} index={0}>
-        <UserDefinedLanguageTools />
+        <CustomLanguageTools grammarResponse={props.grammarResponse} />
       </TabPanel>
     </div>
   );

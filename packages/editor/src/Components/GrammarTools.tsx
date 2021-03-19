@@ -11,7 +11,11 @@ import { GrammarMenu } from "./GrammarMenu";
 
 import "./Panes.css";
 
-export const GramarTools = () => {
+interface IProps {
+  setGrammarResponse: any; // TODO: replace for right type
+}
+
+export const GrammarTools = (props: IProps) => {
   const [grammar, setGrammar] = useState(helloGrammar);
   const [grammarRoot, setGrammarRoot] = useState("root"); // Grammar Root Node
 
@@ -28,7 +32,8 @@ export const GramarTools = () => {
       console.error("No Grammar Root defined.");
       return;
     }
-    uploadGrammar(grammar, grammarRoot);
+    const grammarResponse = uploadGrammar(grammar, grammarRoot);
+    props.setGrammarResponse(grammarResponse);
   };
 
   const handleFilePickChange = (file: File) => {

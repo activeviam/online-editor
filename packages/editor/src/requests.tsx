@@ -1,33 +1,35 @@
 import axios from "axios";
 
+import { ParsedCustomLanguage } from "./Types/CustomLanguageTypes";
+import { GrammarRequestResult } from "./Types/GrammarTypes";
+
 const requestUrl = `${process.env.REACT_APP_REQUEST_BASE_URL}:${process.env.REACT_APP_REQUEST_PORT}`;
 
 export const uploadGrammarFromFile = async (
   selectedFile: File,
   rootNode: string
-) => {
-  if (selectedFile) {
-    const data = new FormData();
-    data.append("file", selectedFile);
-    data.append("grammarRoot", rootNode);
-    //const visitor = await axios
-    await axios
-      .post(
-        requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR_FROM_FILE,
-        data,
-        {
-          withCredentials: true,
-        }
-      )
-      //.then((response) => response.data.visitor)
-      .catch(console.error);
-    //return visitor;
-  }
+): Promise<GrammarRequestResult> => {
+  const data = new FormData();
+  data.append("file", selectedFile);
+  data.append("grammarRoot", rootNode);
+  const grammarResponse = await axios
+    .post(
+      requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR_FROM_FILE,
+      data,
+      {
+        withCredentials: true,
+      }
+    )
+    .then((response) => response.data)
+    .catch(console.error);
+  return grammarResponse;
 };
 
-export const uploadGrammar = async (grammar: string, rootNode: string) => {
-  //const visitor = await axios
-  await axios
+export const uploadGrammar = async (
+  grammar: string,
+  rootNode: string
+): Promise<GrammarRequestResult> => {
+  const grammarResponse = await axios
     .post(
       requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR,
       {
@@ -36,16 +38,15 @@ export const uploadGrammar = async (grammar: string, rootNode: string) => {
       },
       { withCredentials: true }
     )
-    //.then((response) => [response.data.visitor])
+    .then((response) => response.data)
     .catch(console.error);
-  //return visitor;
+
+  return grammarResponse;
 };
 
-export type ParsedType = string;
-
-export const parseUserDefinedLanguage = async (
+export const parseCustomLanguage = async (
   userDefinedLanguage: string
-): Promise<ParsedType> => {
+): Promise<ParsedCustomLanguage> => {
   const parsed = await axios
     .post(
       requestUrl + process.env.REACT_APP_ENDPOINT_PARSE,
@@ -54,7 +55,7 @@ export const parseUserDefinedLanguage = async (
       },
       { withCredentials: true }
     )
-    .then((response) => response.data.parsed)
+    .then((response) => response.data)
     .catch(console.error);
   return parsed;
 };

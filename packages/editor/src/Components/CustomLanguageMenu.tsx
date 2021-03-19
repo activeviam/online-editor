@@ -8,13 +8,13 @@ interface IProps {
   onClickParse: () => void;
 }
 
-export const UserDefinedLanguageMenu = (props: IProps) => {
+export const CustomLanguageMenu = (props: IProps) => {
   return (
     <div className="whole-menu">
       <div className="menu-left" />
       <div className="menu-right">
         <Button variant="outlined" color="primary" onClick={props.onClickParse}>
-          Parse User Defined Language
+          Parse Custom Language
         </Button>
       </div>
     </div>
