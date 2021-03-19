@@ -1,0 +1,22 @@
+.grammar-menu {
+  height: 10%;
+}
+
+.user-defined-language-menu {
+  height: 10%;
+}
+
+.editor {
+  height: 100%;
+}
+
+.tab-panel {
+  flex-grow: 1;
+}
+
+.whole-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}

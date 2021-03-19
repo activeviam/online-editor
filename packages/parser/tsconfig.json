@@ -12,6 +12,7 @@
     "noEmitOnError": true,
     "isolatedModules": true,
     "noUnusedLocals": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "composite": true
   }
 }
