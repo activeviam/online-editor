@@ -15,7 +15,7 @@ export const CustomLanguageMenu = (props: IProps) => {
       <div className="menu-right">
         <Button
           variant="outlined"
-          color="primary"
+          color="secondary"
           onClick={props.onClickParse}
           size="small"
         >

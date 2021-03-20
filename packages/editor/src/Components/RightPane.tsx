@@ -21,7 +21,15 @@ export const RightPane = (props: IProps) => {
 
   return (
     <div className="whole-pane">
-      <AppBar position="static">
+      <AppBar
+        position="static"
+        color="transparent"
+        style={{
+          paddingLeft: "24px",
+          paddingRight: "24px",
+          borderRadius: "16px",
+        }}
+      >
         <Tabs
           value={tabValue}
           onChange={(event, newValue) => {

@@ -5,6 +5,7 @@ React component containing the grammar editor and buttons.
 */
 
 import { AppBar, Tab, Tabs } from "@material-ui/core";
+
 import { GrammarTools } from "./GrammarTools";
 import { TabPanel } from "../Misc/TabPanel";
 
@@ -19,7 +20,15 @@ export const LeftPane = (props: IProps) => {
 
   return (
     <div className="whole-pane">
-      <AppBar position="static">
+      <AppBar
+        position="static"
+        color="transparent"
+        style={{
+          paddingLeft: "24px",
+          paddingRight: "24px",
+          borderRadius: "16px",
+        }}
+      >
         <Tabs
           value={tabValue}
           onChange={(event, newValue) => {
@@ -34,7 +43,7 @@ export const LeftPane = (props: IProps) => {
         <GrammarTools setGrammarResponse={props.setGrammarResponse} />
       </TabPanel>
       <TabPanel value={tabValue} index={1}>
-        <h1>Hi!</h1>
+        <h1>Hi</h1>
       </TabPanel>
     </div>
   );
