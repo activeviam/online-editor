@@ -45,6 +45,9 @@ export const CustomLanguageTools = (props: IProps) => {
 
   return (
     <div className="whole-pane">
+      <div className="custom-language-menu">
+        <CustomLanguageMenu onClickParse={handleParseClick} />
+      </div>
       <div className="editor">
         <CustomLanguageMonacoEditor
           onChange={handleCustomLanguageChange}
@@ -52,9 +55,6 @@ export const CustomLanguageTools = (props: IProps) => {
           grammarResponse={props.grammarResponse}
           parsedCustomLanguage={parsedCustomLanguage}
         />
-      </div>
-      <div className="custom-language-menu">
-        <CustomLanguageMenu onClickParse={handleParseClick} />
       </div>
     </div>
   );

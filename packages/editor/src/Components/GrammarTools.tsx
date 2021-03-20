@@ -51,9 +51,6 @@ export const GrammarTools = (props: IProps) => {
 
   return (
     <div className="whole-pane">
-      <div className="editor">
-        <FullHeightEditor value={grammar} onChange={handleGrammarChange} />
-      </div>
       <div className="grammar-menu">
         <GrammarMenu
           //onChangeVisitor={setVisitor}
@@ -62,6 +59,9 @@ export const GrammarTools = (props: IProps) => {
           onChangeFilePicker={handleFilePickChange}
           onClickCompileGrammar={handleCompileGrammarClick}
         />
+      </div>
+      <div className="editor">
+        <FullHeightEditor value={grammar} onChange={handleGrammarChange} />
       </div>
     </div>
   );

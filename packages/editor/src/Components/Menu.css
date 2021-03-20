@@ -5,7 +5,7 @@
 }
 
 .menu-right {
-  padding-right: 5%;
+  padding-right: 3%;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -19,7 +19,7 @@
 }
 
 .menu-left {
-  padding-left: 5%;
+  padding-left: 3%;
   display: flex;
   justify-content: flex-start;
   align-items: center;
