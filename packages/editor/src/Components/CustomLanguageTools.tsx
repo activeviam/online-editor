@@ -4,6 +4,8 @@ import React, { useState } from "react";
 Component containing the user defined language editor and its menu.
 */
 
+import useLocalStorage from "react-use-localstorage";
+
 import { parseCustomLanguage } from "../requests";
 import { CustomLanguageMenu } from "./CustomLanguageMenu";
 import { CustomLanguageMonacoEditor } from "./CustomLanguageMonacoEditor";
@@ -18,7 +20,10 @@ interface IProps {
 }
 
 export const CustomLanguageTools = (props: IProps) => {
-  const [customLanguage, setCustomLanguage] = useState("hello bob");
+  const [customLanguage, setCustomLanguage] = useLocalStorage(
+    "customLanguage",
+    "hello bob"
+  );
   const [parsedCustomLanguage, setParsedCustomLanguage] = useState<
     ParsedCustomLanguage | undefined
   >();

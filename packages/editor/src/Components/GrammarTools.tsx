@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 
 /*
 Component that contains the grammar editor and its menu.
 */
+
+import useLocalStorage from "react-use-localstorage";
 
 import { helloGrammar } from "../GrammarExamples/HelloGrammar";
 import { uploadGrammar, uploadGrammarFromFile } from "../requests";
@@ -16,8 +18,8 @@ interface IProps {
 }
 
 export const GrammarTools = (props: IProps) => {
-  const [grammar, setGrammar] = useState(helloGrammar);
-  const [grammarRoot, setGrammarRoot] = useState("root"); // Grammar Root Node
+  const [grammar, setGrammar] = useLocalStorage("userGrammar", helloGrammar);
+  const [grammarRoot, setGrammarRoot] = useLocalStorage("grammarRoot", "root"); // Grammar Root Node
 
   const handleGrammarChange = (changedGrammar: string | undefined) => {
     if (changedGrammar === undefined) {

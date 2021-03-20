@@ -32,7 +32,7 @@ export const GrammarMenu = (props: IProps) => {
               props.onChangeRootNode(e.target.value);
             }}
             placeholder="Grammar Root Node"
-            defaultValue="root"
+            value={props.grammarRoot}
             error={props.grammarRoot === ""}
             helperText={
               props.grammarRoot === "" ? "Grammar Root Required!" : ""

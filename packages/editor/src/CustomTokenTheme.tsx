@@ -18,7 +18,7 @@ const LightOceanColors = [
 // TODO: add theme selector.
 
 export const buildTokenColorRulesRandom = (
-  grammarResponse: GrammarRequestResult // TODO: Change Type
+  grammarResponse: GrammarRequestResult
 ): monaco.editor.ITokenThemeRule[] => {
   const { allPossibleTokens } = grammarResponse;
   return allPossibleTokens.map((tokenId: string, index: number) => ({
