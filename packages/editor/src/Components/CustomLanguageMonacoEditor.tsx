@@ -136,11 +136,10 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
         new CustomTokensProvider(props.parsedCustomLanguage)
       );
       monaco.editor.setTheme("customLanguage");
+
+      const tokensByLine = buildParsedTokensByLine(props.parsedCustomLanguage);
       monaco.languages.registerHoverProvider("customLanguage", {
         provideHover: (model, position) => {
-          const tokensByLine = buildParsedTokensByLine(
-            props.parsedCustomLanguage!
-          );
           const { column, lineNumber } = position;
 
           const tokensCurrentLine = tokensByLine!.get(lineNumber);
