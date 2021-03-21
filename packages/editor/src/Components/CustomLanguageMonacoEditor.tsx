@@ -106,24 +106,16 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
   const monaco = useMonaco();
 
   useEffect(() => {
-    if (monaco) {
-      monaco.languages.register({
-        id: "customLanguage",
-      });
-    }
-  }, [monaco]);
-
-  useEffect(() => {
     if (monaco && props.grammarResponse) {
       console.log("Defining theme.");
-      monaco.editor.defineTheme("customLanguage", {
+      monaco.editor.defineTheme("customTheme", {
         base: "vs",
         inherit: false,
         rules: buildTokenColorRulesRandom(props.grammarResponse),
         colors: {},
       });
       // next line is to override previous theme if there was one.
-      monaco.editor.setTheme("notOurCustomLanguage");
+      //monaco.editor.setTheme("notOurCustomLanguage");
     }
     setMockGrammar(false);
   }, [props.grammarResponse, monaco]);
@@ -135,7 +127,7 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
         "customLanguage",
         new CustomTokensProvider(props.parsedCustomLanguage)
       );
-      monaco.editor.setTheme("customLanguage");
+      monaco.editor.setTheme("customTheme");
 
       const tokensByLine = buildParsedTokensByLine(props.parsedCustomLanguage);
       monaco.languages.registerHoverProvider("customLanguage", {
@@ -168,7 +160,26 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
 
   return (
     <div ref={container} style={{ height: "100%" }}>
-      <Editor {...props} defaultLanguage={"customLanguage"} height={height} />
+      <Editor
+        {...props}
+        defaultLanguage={"customLanguage"}
+        height={height}
+        theme="customTheme"
+        onMount={(editor, monaco) => {
+          if (monaco) {
+            monaco.languages.register({
+              id: "customLanguage",
+            });
+            monaco.editor.defineTheme("customTheme", {
+              base: "vs",
+              inherit: false,
+              rules: [],
+              colors: { "editorLineNumber.foreground": "ff0000" },
+            });
+            monaco.editor.setTheme("customTheme");
+          }
+        }}
+      />
     </div>
   );
 };

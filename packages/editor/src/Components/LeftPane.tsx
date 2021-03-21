@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 /*
 React component containing the grammar editor and buttons.
@@ -6,18 +6,22 @@ React component containing the grammar editor and buttons.
 
 import { AppBar, Tab, Tabs } from "@material-ui/core";
 
+import { CustomLanguageTools } from "./CustomLanguageTools";
 import { GrammarTools } from "./GrammarTools";
 import { TabPanel } from "../Misc/TabPanel";
+
+import { GrammarRequestResult } from "../Types/GrammarTypes";
 
 import "./Panes.css";
 
 interface IProps {
-  setGrammarResponse: any; // TODO: replace for right type
+  grammarResponse: GrammarRequestResult | undefined;
+  setGrammarResponse: (response: GrammarRequestResult) => void;
+  tabValue: number;
+  setTabValue: (tabValue: number) => void;
 }
 
 export const LeftPane = (props: IProps) => {
-  const [tabValue, setTabValue] = useState(0);
-
   return (
     <div className="whole-pane">
       <AppBar
@@ -30,20 +34,24 @@ export const LeftPane = (props: IProps) => {
         }}
       >
         <Tabs
-          value={tabValue}
+          value={props.tabValue}
           onChange={(event, newValue) => {
-            setTabValue(newValue);
+            props.setTabValue(newValue);
           }}
         >
           <Tab label="Grammar" />
-          <Tab label="Define Theme" />
+          <Tab label="Parse Language" />
+          <Tab label="Visitor" />
         </Tabs>
       </AppBar>
-      <TabPanel value={tabValue} index={0}>
+      <TabPanel value={props.tabValue} index={0}>
         <GrammarTools setGrammarResponse={props.setGrammarResponse} />
       </TabPanel>
-      <TabPanel value={tabValue} index={1}>
-        <h1>Hi</h1>
+      <TabPanel value={props.tabValue} index={1}>
+        <CustomLanguageTools grammarResponse={props.grammarResponse} />
+      </TabPanel>
+      <TabPanel value={props.tabValue} index={2}>
+        <h3>Not yet implemented.</h3>
       </TabPanel>
     </div>
   );

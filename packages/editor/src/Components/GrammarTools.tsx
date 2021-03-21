@@ -8,13 +8,15 @@ import useLocalStorage from "react-use-localstorage";
 
 import { helloGrammar } from "../GrammarExamples/HelloGrammar";
 import { uploadGrammar, uploadGrammarFromFile } from "../requests";
-import { FullHeightEditor } from "./FullHeightEditor";
+import { GrammarMonacoEditor } from "./GrammarMonacoEditor";
 import { GrammarMenu } from "./GrammarMenu";
+
+import { GrammarRequestResult } from "../Types/GrammarTypes";
 
 import "./Panes.css";
 
 interface IProps {
-  setGrammarResponse: any; // TODO: replace for right type
+  setGrammarResponse: (response: GrammarRequestResult) => void;
 }
 
 export const GrammarTools = (props: IProps) => {
@@ -29,12 +31,12 @@ export const GrammarTools = (props: IProps) => {
     setGrammar(changedGrammar);
   };
 
-  const handleCompileGrammarClick = () => {
+  const handleCompileGrammarClick = async () => {
     if (grammarRoot === "") {
       console.error("No Grammar Root defined.");
       return;
     }
-    const grammarResponse = uploadGrammar(grammar, grammarRoot);
+    const grammarResponse = await uploadGrammar(grammar, grammarRoot);
     props.setGrammarResponse(grammarResponse);
   };
 
@@ -61,7 +63,11 @@ export const GrammarTools = (props: IProps) => {
         />
       </div>
       <div className="editor">
-        <FullHeightEditor value={grammar} onChange={handleGrammarChange} />
+        <GrammarMonacoEditor
+          defaultLanguage="antlr"
+          value={grammar}
+          onChange={handleGrammarChange}
+        />
       </div>
     </div>
   );
