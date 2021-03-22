@@ -1,8 +1,6 @@
 import { languages } from "monaco-editor";
 
-import { buildParsedTokensByLine } from "./RequestPostprocessing";
-
-import { ParsedCustomLanguage, TokenInfo } from "./Types/CustomLanguageTypes";
+import { TokenInfo } from "./Types/CustomLanguageTypes";
 
 /*
 Interface between tokens given by the back-end and monaco-editor.
@@ -28,9 +26,9 @@ export class CustomLanguageState implements languages.IState {
 export class CustomTokensProvider implements languages.TokensProvider {
   tokensByLine: Map<number, TokenInfo[]>;
 
-  constructor(parseResult: ParsedCustomLanguage) {
+  constructor(tokensByLine: Map<number, TokenInfo[]>) {
     /* Create a map of tokens with the line number as key */
-    this.tokensByLine = buildParsedTokensByLine(parseResult);
+    this.tokensByLine = tokensByLine;
   }
 
   getInitialState(): languages.IState {

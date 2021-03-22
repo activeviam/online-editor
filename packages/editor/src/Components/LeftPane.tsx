@@ -30,7 +30,7 @@ export const LeftPane = (props: IProps) => {
         style={{
           paddingLeft: "24px",
           paddingRight: "24px",
-          borderRadius: "16px",
+          borderRadius: "4px",
         }}
       >
         <Tabs

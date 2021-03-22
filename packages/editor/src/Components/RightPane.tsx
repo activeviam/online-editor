@@ -6,6 +6,7 @@ React component containing the user defined language editor and button.
 
 import { Paper } from "@material-ui/core";
 
+import { GrammarInfo } from "./GrammarInfo";
 import { TabPanel } from "../Misc/TabPanel";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
@@ -29,22 +30,17 @@ export const RightPane = (props: IProps) => {
         }}
       >
         <div className="application-details">
-          <h4>How to Use</h4>
+          <h3>About</h3>
           <div className="application-details-divider" />
-          <h4>About Us</h4>
+          <h3>How to Use</h3>
           <div className="application-details-divider" />
-          <h3>Online ANTLR IDE</h3>
+          <h2>ANTLR4 Typescript IDE</h2>
         </div>
       </div>
       <div className="grammar-menu"></div>
       <Paper className="right-exposition-zone" elevation={3}>
         <TabPanel value={props.tabValue} index={0}>
-          <h2>Grammar Status</h2>
-          <h3>not yet implemented</h3>
-          <ul>
-            <li>Implement grammar status itself (compiled / not compiled)</li>
-            <li>Implement custom theme definer.</li>
-          </ul>
+          <GrammarInfo grammarResponse={props.grammarResponse}></GrammarInfo>
         </TabPanel>
         <TabPanel value={props.tabValue} index={1}>
           <h2>Parse Language Status</h2>
