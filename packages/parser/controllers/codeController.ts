@@ -34,12 +34,10 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
     text: token.text,
     type: ruleNames[token.type - 1],
     line: token.line,
+    column: token.charPositionInLine,
     start: token.start,
     stop: token.stop,
   }));
-  result.map((token: any) => {
-    console.log(token);
-  });
 
   res.status(200).json({
     ruleNames: ruleNames,

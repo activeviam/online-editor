@@ -49,6 +49,11 @@ const runAntlr = (
 
   // Compile the grammar. The compilation flags are set in the .env file
   const child = spawn(ANTLR4TS, [...ANTLR_FLAGS.split(" "), grammarPath]);
+  
+  /*
+  child.stdout.on("data", (data) => console.log(data.toString()));
+  child.stderr.on("data", (data) => console.log(data.toString()));
+  */
 
   child.on("exit", () => {
     generateParserFile(grammarName, directory);
@@ -110,11 +115,53 @@ export const compileGrammarFile = (req: any, res: any) => {
     if (err) {
       return res.status(500).json(err);
     }
+
+    runAntlr(req.file.filename, req.file.path, req.body.grammarRoot);
+
+    // Storing grammar data in the session
     const grammar = Object();
     grammar.name = req.file.filename.split(".")[0];
     grammar.root = req.body.grammarRoot;
     req.session.grammar = grammar;
-    runAntlr(req.file.filename, req.file.path, req.body.grammarRoot);
-    return res.status(200).send(req.file);
+
+    return res.status(200).send("OK");
   });
+};
+
+export const compileGrammarString = (req: any, res: any) => {
+  const grammarString: string = req.body.grammar;
+
+  /*
+  This assumes the first occurence of a line that starts with 'grammar'
+  is the line where the grammar name is defined
+  */
+
+  let grammarName = grammarString
+    .split("\n")
+    .filter((s: string) => s.startsWith("grammar"))[0];
+  grammarName = grammarName.split(" ")[1].replace(";", "");
+
+  const filename = grammarName + ".g4";
+
+  const sessionID = req.sessionID;
+
+  const _path = path.join(GRAMMAR_STORAGE, sessionID); // Path where to store the grammar related files
+  if (fs.existsSync(_path)) {
+    fs.rmSync(_path, { recursive: true });
+  }
+  fs.mkdirSync(_path, { recursive: true });
+
+  // Write grammar in file
+  fs.writeFileSync(path.join(_path, filename), grammarString);
+
+  // Run ANTLR on the grammar file
+  runAntlr(filename, path.join(_path, filename), req.body.grammarRoot);
+
+  // Storing grammar data in the session
+  const grammar = Object();
+  grammar.name = grammarName;
+  grammar.root = req.body.grammarRoot;
+  req.session.grammar = grammar;
+
+  return res.status(200).send("OK");
 };
