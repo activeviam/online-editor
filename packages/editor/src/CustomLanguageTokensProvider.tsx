@@ -46,7 +46,6 @@ export class CustomTokensProvider implements languages.TokensProvider {
         }))
       : [];
 
-    console.log(tokensThisLine);
     return {
       tokens: lineTokens,
       endState: new CustomLanguageState(lineNumber + 1),

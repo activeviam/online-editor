@@ -22,6 +22,13 @@ Component containing a monaco editor whose custom content is presented
 with color highlighting according to the user's grammar.
 */
 
+const getTokenHoverText = (token: TokenInfo): string => {
+  const hoverValue = token.type.startsWith("T__")
+    ? `'${token.text}'`
+    : token.type;
+  return hoverValue;
+};
+
 interface IProps extends FHEditorProps {
   value: string;
   parsedCustomLanguage: ParsedCustomLanguage | undefined;
@@ -31,9 +38,9 @@ interface IProps extends FHEditorProps {
 }
 
 export const TokenizeEditor = (props: IProps) => {
-  const [tokensByLine, setTokensByLine] = useLocalStorage<
-    Map<number, TokenInfo[]>
-  >("tokensByLine", new Map());
+  const [tokensByLineStringified, setTokensByLineStringified] = useLocalStorage<
+    string
+  >("tokensByLineStringified", "");
 
   const [themeRules, setThemeRules] = useLocalStorage<editor.ITokenThemeRule[]>(
     "themeRule",
@@ -41,6 +48,10 @@ export const TokenizeEditor = (props: IProps) => {
   );
 
   const [disposableHover, setDisposableHover] = useState<
+    IDisposable | undefined
+  >();
+
+  const [disposableTokenProvider, setDisposableTokenProvider] = useState<
     IDisposable | undefined
   >();
   const monaco = useMonaco();
@@ -55,12 +66,17 @@ export const TokenizeEditor = (props: IProps) => {
     monaco.editor.defineTheme("customTheme", {
       base: "vs",
       inherit: false,
-      rules: [],
+      rules: themeRules || [],
       colors: { "editorLineNumber.foreground": "ff0000" },
     });
+
     monaco.editor.setTheme("customTheme");
 
-    if (tokensByLine && tokensByLine.size) {
+    const tokensByLine: Map<number, TokenInfo[]> = tokensByLineStringified
+      ? new Map(JSON.parse(tokensByLineStringified))
+      : new Map();
+
+    if (tokensByLine.size) {
       // reload previous state
       syntaxHighlightAndUpdateHover(monaco, tokensByLine);
     }
@@ -70,12 +86,19 @@ export const TokenizeEditor = (props: IProps) => {
     monaco: Monaco,
     tokensByLine: Map<number, TokenInfo[]>
   ) => {
-    console.log(tokensByLine);
+    if (tokensByLine === undefined || monaco === null) {
+      return;
+    }
+
     // Update Tokens
-    monaco.languages.setTokensProvider(
+    if (disposableTokenProvider !== undefined) {
+      disposableTokenProvider.dispose();
+    }
+    const tokenProviderDisposable_ = monaco.languages.setTokensProvider(
       "customLanguage",
       new CustomTokensProvider(tokensByLine)
     );
+    setDisposableTokenProvider(tokenProviderDisposable_);
 
     // Update Hover
 
@@ -83,18 +106,23 @@ export const TokenizeEditor = (props: IProps) => {
       disposableHover.dispose();
     }
 
-    const disposable = monaco.languages.registerHoverProvider(
+    const hoverDisposable_ = monaco.languages.registerHoverProvider(
       "customLanguage",
       {
-        provideHover: (model, position) => {
+        provideHover: (
+          model: any,
+          position: { column: any; lineNumber: any }
+        ) => {
           const { column, lineNumber } = position;
 
-          const tokensCurrentLine = tokensByLine!.get(lineNumber);
+          const tokensCurrentLine = tokensByLine.get(lineNumber);
 
           if (tokensCurrentLine === undefined) {
             return { contents: [] };
           } else if (tokensCurrentLine.length === 1) {
-            return { contents: [{ value: tokensCurrentLine[0].type }] };
+            return {
+              contents: [{ value: getTokenHoverText(tokensCurrentLine[0]) }],
+            };
           }
 
           const correctToken = tokensCurrentLine
@@ -106,17 +134,16 @@ export const TokenizeEditor = (props: IProps) => {
             return { contents: [] };
           }
 
-          return { contents: [{ value: correctToken.type }] };
+          return { contents: [{ value: getTokenHoverText(correctToken) }] };
         },
       }
     );
-    setDisposableHover(disposable);
+    setDisposableHover(hoverDisposable_);
     monaco.editor.setTheme("customTheme");
   };
 
   useEffect(() => {
     if (monaco && props.grammarResponse) {
-      console.log("Defining theme.");
       monaco.editor.defineTheme("customTheme", {
         base: "vs",
         inherit: false,
@@ -128,7 +155,6 @@ export const TokenizeEditor = (props: IProps) => {
 
   useEffect(() => {
     if (monaco && props.parsedCustomLanguage) {
-      const tokensByLine = buildParsedTokensByLine(props.parsedCustomLanguage);
       const rules = buildTokenColorRulesRandom2(
         props.parsedCustomLanguage.ruleNames
       );
@@ -137,17 +163,32 @@ export const TokenizeEditor = (props: IProps) => {
         base: "vs",
         inherit: false,
         rules: rules,
-        colors: {},
+        colors: { "editorLineNumber.foreground": "ff0000" },
       });
-      syntaxHighlightAndUpdateHover(monaco, tokensByLine);
-      // Backup tokens in localStorage to recover state later
-      setTokensByLine(tokensByLine);
-    }
-  }, [props.parsedCustomLanguage, monaco, setTokensByLine, setThemeRules]);
 
-  // cleanup hover if there is one before exiting
+      const currentTokensByLine = buildParsedTokensByLine(
+        props.parsedCustomLanguage
+      );
+      if (currentTokensByLine !== undefined) {
+        syntaxHighlightAndUpdateHover(monaco, currentTokensByLine);
+        setTokensByLineStringified(
+          JSON.stringify(Array.from(currentTokensByLine.entries()))
+        );
+      }
+    }
+  }, [
+    props.parsedCustomLanguage,
+    monaco,
+    setThemeRules,
+    setTokensByLineStringified,
+  ]); // TODO: Fix Dependencies
+
+  // cleanup token provider and hover if there is one before exiting
   useEffect(() => {
     return () => {
+      if (disposableTokenProvider) {
+        disposableTokenProvider.dispose();
+      }
       if (disposableHover) {
         disposableHover.dispose();
       }
