@@ -13,5 +13,6 @@
     "isolatedModules": true,
     // "noUnusedLocals": true,
     "noImplicitReturns": true
+    "composite": true
   }
 }
