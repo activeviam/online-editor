@@ -75,6 +75,7 @@ const generateParserFile = (grammarName: string, directory: string) => {
 };
 
 const generateLexerFile = (
+
   grammarName: string,
   grammarRoot: string,
   directory: string,
@@ -106,6 +107,7 @@ const generateAstTreeFile = (
     grammarRoot: grammarRoot,
   });
   fs.writeFileSync(path.join(directory, "parseTree.ts"), source);
+
 };
 
 // Routes controllers

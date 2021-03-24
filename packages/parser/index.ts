@@ -10,6 +10,7 @@ import connectRedis from "connect-redis";
 import grammarRouter from "./routes/grammarRoutes";
 import codeRouter from "./routes/codeRoutes";
 
+
 dotenv.config();
 const RedisStore = connectRedis(session);
 const redisClient = redis.createClient();
@@ -52,12 +53,9 @@ app.use(
 );
 
 // Routes
-app.use((req, res, next) => {
-  console.log(req.sessionID);
-  next();
-});
 app.use("/grammar", grammarRouter);
 app.use("/code", codeRouter);
+
 
 // Start server
 
