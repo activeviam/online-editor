@@ -21,9 +21,11 @@ export const buildTokenColorRulesRandom = (
   grammarResponse: GrammarRequestResult
 ): monaco.editor.ITokenThemeRule[] => {
   const { allPossibleTokens } = grammarResponse;
-  return allPossibleTokens.map((tokenId: string, index: number) => ({
-    token: tokenId,
-    foreground: LightOceanColors[index % LightOceanColors.length],
-    fontStyle: "bold",
-  }));
+  return allPossibleTokens
+    ? allPossibleTokens.map((tokenId: string, index: number) => ({
+        token: tokenId,
+        foreground: LightOceanColors[index % LightOceanColors.length],
+        fontStyle: "bold",
+      }))
+    : [];
 };

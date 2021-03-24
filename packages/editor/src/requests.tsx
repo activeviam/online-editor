@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { ParsedCustomLanguage } from "./Types/CustomLanguageTypes";
+import { ParsedCustomLanguage } from "./Types/TokenizeTypes";
 import { GrammarRequestResult } from "./Types/GrammarTypes";
 
 const requestUrl = `${process.env.REACT_APP_REQUEST_BASE_URL}:${process.env.REACT_APP_REQUEST_PORT}`;
@@ -34,7 +34,7 @@ export const uploadGrammar = async (
       requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR,
       {
         grammar: grammar,
-        rootNode: rootNode,
+        grammarRoot: rootNode,
       },
       { withCredentials: true }
     )
@@ -51,7 +51,7 @@ export const parseCustomLanguage = async (
     .post(
       requestUrl + process.env.REACT_APP_ENDPOINT_PARSE,
       {
-        userDefinedLanguage: userDefinedLanguage,
+        code: userDefinedLanguage,
       },
       { withCredentials: true }
     )

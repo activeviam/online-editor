@@ -50,11 +50,11 @@ export const TokenizeEditor = (props: IProps) => {
 
     if (tokensByLine && tokensByLine.size) {
       // reload previous state
-      tokenizeAndUpdateHover(monaco, tokensByLine);
+      syntaxHighlightAndUpdateHover(monaco, tokensByLine);
     }
   };
 
-  const tokenizeAndUpdateHover = (
+  const syntaxHighlightAndUpdateHover = (
     monaco: Monaco,
     tokensByLine: Map<number, TokenInfo[]>
   ) => {
@@ -107,7 +107,7 @@ export const TokenizeEditor = (props: IProps) => {
   useEffect(() => {
     if (monaco && props.parsedCustomLanguage) {
       const tokensByLine = buildParsedTokensByLine(props.parsedCustomLanguage);
-      tokenizeAndUpdateHover(monaco, tokensByLine);
+      syntaxHighlightAndUpdateHover(monaco, tokensByLine);
       // Backup tokens in localStorage to recover state later
       setTokensByLine(tokensByLine);
     }
