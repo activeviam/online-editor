@@ -29,3 +29,15 @@ export const buildTokenColorRulesRandom = (
       }))
     : [];
 };
+
+export const buildTokenColorRulesRandom2 = (
+  tokens: string[]
+): monaco.editor.ITokenThemeRule[] => {
+  return tokens
+    ? tokens.map((tokenId: string, index: number) => ({
+        token: tokenId,
+        foreground: LightOceanColors[index % LightOceanColors.length],
+        fontStyle: "bold",
+      }))
+    : [];
+};

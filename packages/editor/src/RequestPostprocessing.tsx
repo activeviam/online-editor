@@ -1,4 +1,4 @@
-import { ParsedCustomLanguage, TokenInfo } from "./Types/CustomLanguageTypes";
+import { ParsedCustomLanguage, TokenInfo } from "./Types/TokenizeTypes";
 
 export const buildParsedTokensByLine = (
   requestResponse: ParsedCustomLanguage

@@ -41,11 +41,12 @@ export class CustomTokensProvider implements languages.TokensProvider {
 
     const lineTokens = tokensThisLine
       ? tokensThisLine.map((token: TokenInfo) => ({
-          startIndex: token.start,
+          startIndex: token.column,
           scopes: token.type,
         }))
       : [];
 
+    console.log(tokensThisLine);
     return {
       tokens: lineTokens,
       endState: new CustomLanguageState(lineNumber + 1),

@@ -3,7 +3,7 @@ import React, { Fragment, useEffect } from "react";
 
 import { useLocalStorage } from "react-use";
 
-import { buildTokenColorRulesRandom } from "../CustomTokenTheme";
+import { buildTokenColorRulesRandom } from "../TokenizeTheme";
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 
 interface IProps {

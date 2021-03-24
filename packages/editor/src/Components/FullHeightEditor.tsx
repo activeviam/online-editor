@@ -48,7 +48,7 @@ export const FullHeightEditor = (props: EditorProps) => {
 
   return (
     <div ref={container} style={{ height: "100%" }}>
-      <Editor {...props} height={height} onMount={handleOnMountEditor}></Editor>
+      <Editor {...props} height={height} onMount={handleOnMountEditor} />
     </div>
   );
 };

@@ -2,6 +2,7 @@ export interface TokenInfo {
   text: string;
   type: string;
   line: number;
+  column: number;
   start: number;
   stop: number;
 }
