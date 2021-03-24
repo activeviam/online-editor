@@ -8,7 +8,7 @@ interface IProps {
   onClickParse: () => void;
 }
 
-export const CustomLanguageMenu = (props: IProps) => {
+export const TokenizeMenu = (props: IProps) => {
   return (
     <div className="whole-menu">
       <div className="menu-left" />
@@ -19,7 +19,7 @@ export const CustomLanguageMenu = (props: IProps) => {
           onClick={props.onClickParse}
           size="small"
         >
-          Parse Custom Language
+          Tokenize
         </Button>
       </div>
     </div>

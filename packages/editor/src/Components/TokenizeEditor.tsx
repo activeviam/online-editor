@@ -1,17 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 
-import useLocalStorage from "react-use-localstorage";
+import { useLocalStorage } from "react-use";
 import { editor } from "monaco-editor";
-import Editor, { EditorProps, useMonaco, Monaco } from "@monaco-editor/react";
+import { useMonaco, Monaco } from "@monaco-editor/react";
 
 import { CustomTokensProvider } from "../CustomLanguageTokensProvider";
 import { buildTokenColorRulesRandom } from "../CustomTokenTheme";
+import { FHEditorProps, FullHeightEditor } from "./FullHeightEditor";
 import { buildParsedTokensByLine } from "../RequestPostprocessing";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
-import { ParsedCustomLanguage, TokenInfo } from "../Types/CustomLanguageTypes";
+import { ParsedCustomLanguage, TokenInfo } from "../Types/TokenizeTypes";
 
-import "./TokenStyling.css";
 import "./Menu.css";
 
 /*
@@ -19,21 +19,21 @@ Component containing a monaco editor whose custom content is presented
 with color highlighting according to the user's grammar.
 */
 
-interface IProps extends EditorProps {
+interface IProps extends FHEditorProps {
   value: string;
   parsedCustomLanguage: ParsedCustomLanguage | undefined;
   grammarResponse: GrammarRequestResult | undefined;
   defaultLanguage?: never;
+  language?: never;
 }
 
-export const CustomLanguageMonacoEditor = (props: IProps) => {
-  const [tokensByLineStringified, setTokensByLineStringified] = useLocalStorage(
-    "tokensByLineStringified",
-    "notSet"
-  );
+export const TokenizeEditor = (props: IProps) => {
+  const [tokensByLine, setTokensByLine] = useLocalStorage<
+    Map<number, TokenInfo[]>
+  >("tokensByLine", new Map());
   const monaco = useMonaco();
 
-  const handleMonacoOnMount = (
+  const handleOnMountEditor = (
     _editor: editor.IStandaloneCodeEditor,
     monaco: Monaco
   ) => {
@@ -48,11 +48,8 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
     });
     monaco.editor.setTheme("customTheme");
 
-    if (tokensByLineStringified !== "notSet") {
+    if (tokensByLine && tokensByLine.size) {
       // reload previous state
-      const tokensByLine = new Map<number, TokenInfo[]>(
-        JSON.parse(tokensByLineStringified)
-      );
       tokenizeAndUpdateHover(monaco, tokensByLine);
     }
   };
@@ -61,7 +58,7 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
     monaco: Monaco,
     tokensByLine: Map<number, TokenInfo[]>
   ) => {
-    // Update Theme
+    // Update Tokens
     monaco.languages.setTokensProvider(
       "customLanguage",
       new CustomTokensProvider(tokensByLine)
@@ -95,14 +92,6 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
     });
   };
 
-  const container = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number>(0);
-  useEffect(() => {
-    if (container.current) {
-      setHeight(container.current.clientHeight);
-    }
-  }, []);
-
   useEffect(() => {
     if (monaco && props.grammarResponse) {
       console.log("Defining theme.");
@@ -112,8 +101,6 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
         rules: buildTokenColorRulesRandom(props.grammarResponse),
         colors: {},
       });
-      // next line is to override previous theme if there was one.
-      //monaco.editor.setTheme("notOurCustomLanguage");
     }
   }, [props.grammarResponse, monaco]);
 
@@ -121,23 +108,18 @@ export const CustomLanguageMonacoEditor = (props: IProps) => {
     if (monaco && props.parsedCustomLanguage) {
       const tokensByLine = buildParsedTokensByLine(props.parsedCustomLanguage);
       tokenizeAndUpdateHover(monaco, tokensByLine);
-      return () => {
-        // Backup tokens in localStorage to recover state later
-        setTokensByLineStringified(JSON.stringify(Array.from(tokensByLine)));
-      };
+      // Backup tokens in localStorage to recover state later
+      setTokensByLine(tokensByLine);
     }
-  }, [props.parsedCustomLanguage, monaco, setTokensByLineStringified]);
+  }, [props.parsedCustomLanguage, monaco, setTokensByLine]);
 
   return (
-    <div ref={container} style={{ height: "100%" }}>
-      <Editor
-        {...props}
-        defaultLanguage={"customLanguage"}
-        height={height}
-        theme="customTheme"
-        loading=""
-        onMount={handleMonacoOnMount}
-      />
-    </div>
+    <FullHeightEditor
+      {...props}
+      defaultLanguage={"customLanguage"}
+      theme="customTheme"
+      loading={props.loading ? props.loading : ""}
+      onMount={handleOnMountEditor}
+    />
   );
 };

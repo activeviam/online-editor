@@ -21,6 +21,7 @@ export const TabPanel = (props: IProps) => {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       className="tab-panel"
+      style={{ height: "100%" }}
       {...other}
     >
       {value === index && children}

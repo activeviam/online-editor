@@ -6,7 +6,7 @@ React component containing the grammar editor and buttons.
 
 import { AppBar, Tab, Tabs } from "@material-ui/core";
 
-import { CustomLanguageTools } from "./CustomLanguageTools";
+import { TokenizeTools } from "./TokenizeTools";
 import { GrammarTools } from "./GrammarTools";
 import { TabPanel } from "../Misc/TabPanel";
 
@@ -39,16 +39,16 @@ export const LeftPane = (props: IProps) => {
             props.setTabValue(newValue);
           }}
         >
-          <Tab label="Grammar" />
-          <Tab label="Parse Language" />
-          <Tab label="Visitor" />
+          <Tab label="ANTLR Grammar" />
+          <Tab label="Tokenize Input" />
+          <Tab label="Implement Visitor" />
         </Tabs>
       </AppBar>
       <TabPanel value={props.tabValue} index={0}>
         <GrammarTools setGrammarResponse={props.setGrammarResponse} />
       </TabPanel>
       <TabPanel value={props.tabValue} index={1}>
-        <CustomLanguageTools grammarResponse={props.grammarResponse} />
+        <TokenizeTools grammarResponse={props.grammarResponse} />
       </TabPanel>
       <TabPanel value={props.tabValue} index={2}>
         <h3>Not yet implemented.</h3>

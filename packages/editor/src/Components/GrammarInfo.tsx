@@ -1,6 +1,7 @@
+import { editor } from "monaco-editor";
 import React, { Fragment, useEffect } from "react";
 
-import useLocalStorage from "react-use-localstorage";
+import { useLocalStorage } from "react-use";
 
 import { buildTokenColorRulesRandom } from "../CustomTokenTheme";
 import { GrammarRequestResult } from "../Types/GrammarTypes";
@@ -10,17 +11,16 @@ interface IProps {
 }
 
 export const GrammarInfo = (props: IProps) => {
-  const [parseThemeRules, setParseThemeRules] = useLocalStorage(
-    "parseThemeRules",
-    "notSet"
-  );
+  const [parseThemeRules, setParseThemeRules] = useLocalStorage<
+    editor.ITokenThemeRule[]
+  >("parseThemeRules", []);
 
   useEffect(() => {
     if (props.grammarResponse !== undefined) {
       const rules = buildTokenColorRulesRandom(props.grammarResponse);
-      setParseThemeRules(JSON.stringify(rules));
+      setParseThemeRules(rules);
     }
-  }, [props.grammarResponse]);
+  }, [props.grammarResponse, setParseThemeRules]);
 
   return (
     <Fragment>

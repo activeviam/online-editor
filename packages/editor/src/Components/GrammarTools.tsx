@@ -4,11 +4,11 @@ import React from "react";
 Component that contains the grammar editor and its menu.
 */
 
-import useLocalStorage from "react-use-localstorage";
+import { useLocalStorage } from "react-use";
 
 import { helloGrammar } from "../GrammarExamples/HelloGrammar";
 import { uploadGrammar, uploadGrammarFromFile } from "../requests";
-import { GrammarMonacoEditor } from "./GrammarMonacoEditor";
+import { GrammarEditor } from "./GrammarEditor";
 import { GrammarMenu } from "./GrammarMenu";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
@@ -32,8 +32,11 @@ export const GrammarTools = (props: IProps) => {
   };
 
   const handleCompileGrammarClick = async () => {
-    if (grammarRoot === "") {
+    if (grammarRoot === undefined || grammarRoot === "") {
       console.error("No Grammar Root defined.");
+      return;
+    } else if (grammar === undefined || grammar === "") {
+      console.error("No Grammar defined.");
       return;
     }
     const grammarResponse = await uploadGrammar(grammar, grammarRoot);
@@ -44,7 +47,7 @@ export const GrammarTools = (props: IProps) => {
     if (file === undefined) {
       console.error("File is undefined.");
       return;
-    } else if (grammarRoot === "") {
+    } else if (grammarRoot === undefined) {
       console.error("No Grammar Root defined.");
       return;
     }
@@ -56,14 +59,14 @@ export const GrammarTools = (props: IProps) => {
       <div className="grammar-menu">
         <GrammarMenu
           //onChangeVisitor={setVisitor}
-          grammarRoot={grammarRoot}
+          grammarRoot={grammarRoot || ""}
           onChangeRootNode={setGrammarRoot}
           onChangeFilePicker={handleFilePickChange}
           onClickCompileGrammar={handleCompileGrammarClick}
         />
       </div>
       <div className="editor">
-        <GrammarMonacoEditor
+        <GrammarEditor
           defaultLanguage="antlr"
           value={grammar}
           onChange={handleGrammarChange}

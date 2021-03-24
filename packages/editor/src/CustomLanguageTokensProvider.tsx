@@ -1,6 +1,6 @@
 import { languages } from "monaco-editor";
 
-import { TokenInfo } from "./Types/CustomLanguageTypes";
+import { TokenInfo } from "./Types/TokenizeTypes";
 
 /*
 Interface between tokens given by the back-end and monaco-editor.
