@@ -1,6 +1,12 @@
 import path from "path";
 import fs from "fs";
 
+import Handlebars from "handlebars";
+// Register Handlebars helper function
+Handlebars.registerHelper("toTitleCase", (str: string) => {
+  return str[0].toUpperCase() + str.slice(1);
+});
+
 import dotenv from "dotenv";
 dotenv.config();
 
