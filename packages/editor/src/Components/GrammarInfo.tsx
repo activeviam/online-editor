@@ -31,8 +31,8 @@ export const GrammarInfo = (props: IProps) => {
       <ul>
         {props.grammarResponse && <h3>Tokens:</h3>}
         {props.grammarResponse
-          ? props.grammarResponse.tokens.map((token: string) => (
-              <li>{token}</li>
+          ? props.grammarResponse.tokens.map((token: string, index: number) => (
+              <li key={index}>{token}</li>
             ))
           : ""}
       </ul>

@@ -41,7 +41,6 @@ export const GrammarTools = (props: IProps) => {
     }
     const grammarResponse = await uploadGrammar(grammar, grammarRoot);
     props.setGrammarResponse(grammarResponse);
-    console.log(grammarResponse);
   };
 
   const handleFilePickChange = async (file: File) => {
@@ -52,6 +51,8 @@ export const GrammarTools = (props: IProps) => {
       console.error("No Grammar Root defined.");
       return;
     }
+    const fileGrammar = await file.text();
+    setGrammar(fileGrammar);
     const grammarResponse = await uploadGrammarFromFile(file, grammarRoot);
     props.setGrammarResponse(grammarResponse);
   };

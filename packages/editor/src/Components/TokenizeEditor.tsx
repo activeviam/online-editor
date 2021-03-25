@@ -126,13 +126,19 @@ export const TokenizeEditor = (props: IProps) => {
         setTokensByLineStringified(undefined);
       }
     }
-  }, [props.parsedCustomLanguage, monaco, setTokensByLineStringified]);
+  }, [
+    props.parsedCustomLanguage,
+    monaco,
+    tokensByLineStringified,
+    setTokensByLineStringified,
+  ]);
 
   // Update syntax highlighting and hover when state changes.
   useEffect(() => {
     if (monaco === null) {
       return () => {};
     }
+
     monaco.languages.register({
       id: "customLanguage",
     });
@@ -170,7 +176,7 @@ export const TokenizeEditor = (props: IProps) => {
         hoverDisposable.current.dispose();
       }
     };
-  });
+  }, []);
 
   return (
     <FullHeightEditor
