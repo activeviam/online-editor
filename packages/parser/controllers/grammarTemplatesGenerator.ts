@@ -21,7 +21,8 @@ export const generateParserFile = (grammarName: string, directory: string) : voi
     const source = parserTemplate({
       grammarName: grammarName,
     });
-    fs.writeFileSync(path.join(directory, "parser.ts"), source);
+    grammarName = grammarName[0].toUpperCase() + grammarName.slice(1)
+    fs.writeFileSync(path.join(directory, `get${grammarName}Parser.ts`), source);
 };
 
 export const generateLexerFile = (
@@ -37,7 +38,8 @@ export const generateLexerFile = (
       grammarName: grammarName,
       grammarRoot: grammarRoot,
     });
-    fs.writeFileSync(path.join(directory, "lexer.ts"), source);
+    grammarName = grammarName[0].toUpperCase() + grammarName.slice(1)
+    fs.writeFileSync(path.join(directory, `get${grammarName}Lexer.ts`), source);
   };
 
 export const generateAstTreeFile = (
@@ -55,6 +57,7 @@ export const generateAstTreeFile = (
       grammarName: grammarName,
       grammarRoot: grammarRoot,
     });
-    fs.writeFileSync(path.join(directory, "parseTree.ts"), source);
+    grammarName = grammarName[0].toUpperCase() + grammarName.slice(1)
+    fs.writeFileSync(path.join(directory, `get${grammarName}ParseTree.ts`), source);
   
   };

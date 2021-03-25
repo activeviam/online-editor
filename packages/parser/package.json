@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "prestart": "npm run build",
+    "prestart": "yarn build",
     "lint": "prettier ./**/*.ts --write & eslint src --max-warnings 0 --ext ts",
     "start": "nodemon index.ts --ignore 'grammar/'",
     "test": "jest"

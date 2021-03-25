@@ -4,14 +4,12 @@ import path from "path";
 import fs from "fs";
 import { spawn } from "child_process";
 
-import Handlebars from "handlebars";
-// Register Handlebars helper function
-Handlebars.registerHelper("toTitleCase", (str: string) => {
-  return str[0].toUpperCase() + str.slice(1);
-});
-
 import dotenv from "dotenv";
-import { generateAstTreeFile, generateLexerFile, generateParserFile } from "./grammarTemplatesGenerator";
+import {
+  generateAstTreeFile,
+  generateLexerFile,
+  generateParserFile,
+} from "./grammarTemplatesGenerator";
 dotenv.config();
 
 // Constants
@@ -39,39 +37,40 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).single("file");
 
-const getGrammarTokens = async (sessionID: string, grammarName: string) : Promise<string[]> => {
+const getGrammarTokens = async (
+  sessionID: string,
+  grammarName: string,
+): Promise<string[]> => {
   const grammarLexer = await import(
     `../grammar/${sessionID}/${grammarName}Lexer.ts`
   );
   const lexerClass = grammarLexer[`${grammarName}Lexer`];
   return lexerClass.ruleNames;
-}
+};
 
 // Compiling Grammar to parser and lexer
 const runAntlr = (
   filename: string,
   grammarPath: string,
   grammarRoot: string,
-) : Promise<boolean> => {
-  
+): Promise<boolean> => {
   return new Promise((resolve, reject) => {
-  const directory = path.dirname(grammarPath);
-  const grammarName = filename.split(".")[0];
+    const directory = path.dirname(grammarPath);
+    const grammarName = filename.split(".")[0];
 
-  // Compile the grammar. The compilation flags are set in the .env file
-  const child = spawn(ANTLR4TS, [...ANTLR_FLAGS.split(" "), grammarPath]);
-  
-  
-  child.stdout.on("data", (data) => console.log(data.toString()));
-  child.stderr.on("data", (data) => console.log(data.toString()));
+    // Compile the grammar. The compilation flags are set in the .env file
+    const child = spawn(ANTLR4TS, [...ANTLR_FLAGS.split(" "), grammarPath]);
 
-  child.on("exit", () => {
-    generateParserFile(grammarName, directory);
-    generateLexerFile(grammarName, grammarRoot, directory);
-    generateAstTreeFile(grammarName, grammarRoot, directory);
-    resolve(true)
+    /* child.stdout.on("data", (data) => console.log("stdout", data.toString())); */
+    child.stderr.on("data", (data) => console.log(data.toString()));
+
+    child.on("exit", () => {
+      generateParserFile(grammarName, directory);
+      generateLexerFile(grammarName, grammarRoot, directory);
+      generateAstTreeFile(grammarName, grammarRoot, directory);
+      resolve(true);
+    });
   });
-  })
 };
 
 // Routes controllers
@@ -91,7 +90,7 @@ export const compileGrammarFile = (req: any, res: any) => {
     req.session.grammar = grammar;
 
     return res.status(200).json({
-      tokens: await getGrammarTokens(req.sessionID, grammar.name)
+      tokens: await getGrammarTokens(req.sessionID, grammar.name),
     });
   });
 };
@@ -115,6 +114,9 @@ export const compileGrammarString = async (req: any, res: any) => {
 
   const _path = path.join(GRAMMAR_STORAGE, sessionID); // Path where to store the grammar related files
 
+  if (fs.existsSync(_path)) {
+    fs.rmSync(_path, { recursive: true });
+  }
   fs.mkdirSync(_path, { recursive: true });
 
   // Write grammar in file
@@ -128,8 +130,8 @@ export const compileGrammarString = async (req: any, res: any) => {
   grammar.name = grammarName;
   grammar.root = req.body.grammarRoot;
   req.session.grammar = grammar;
-  fs.readdir(_path, (err, files)=>files.forEach(f => console.log(f)))
+  
   return res.status(200).json({
-    tokens: await getGrammarTokens(req.sessionID, grammar.name)
+    tokens: await getGrammarTokens(req.sessionID, grammar.name),
   });
 };

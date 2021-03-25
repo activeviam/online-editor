@@ -3,12 +3,20 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   const sessionID = req.sessionID;
   const grammar = req.session.grammar;
 
-  const lexerModule = await import(`../grammar/${sessionID}/lexer.ts`);
+  const grammarName = grammar.name[0].toUpperCase() + grammar.name.slice(1);
+
+  const lexerModule = await import(
+    `../grammar/${sessionID}/get${grammarName}Lexer.ts`
+  );
   const grammarLexer = await import(
     `../grammar/${sessionID}/${grammar.name}Lexer.ts`
   );
-  const parserModule = await import(`../grammar/${sessionID}/parser.ts`);
-  const parseTreeModule = await import(`../grammar/${sessionID}/parseTree.ts`);
+  const parserModule = await import(
+    `../grammar/${sessionID}/get${grammarName}Parser.ts`
+  );
+  const parseTreeModule = await import(
+    `../grammar/${sessionID}/get${grammarName}ParseTree.ts`
+  );
 
   // Creating lexer
   const getLexer = lexerModule.default;
