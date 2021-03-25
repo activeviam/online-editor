@@ -49,15 +49,6 @@ export const TokenizeEditor = (props: IProps) => {
 
   const monaco = useMonaco();
 
-  const handleOnMountEditor = (
-    _editor: editor.IStandaloneCodeEditor,
-    monaco: Monaco
-  ) => {
-    monaco.languages.register({
-      id: "customLanguage",
-    });
-  };
-
   const syntaxHighlightAndUpdateHover = useCallback(
     (monaco: Monaco, tokensByLine: Map<number, TokenInfo[]>) => {
       if (tokensByLine === undefined || monaco === null) {
@@ -188,7 +179,6 @@ export const TokenizeEditor = (props: IProps) => {
       defaultLanguage={"customLanguage"}
       theme="customTheme"
       loading={props.loading ? props.loading : ""}
-      onMount={handleOnMountEditor}
     />
   );
 };
