@@ -24,11 +24,17 @@ export const GrammarInfo = (props: IProps) => {
 
   return (
     <Fragment>
-      <h2>Grammar Status</h2>
-      <h3>not yet implemented</h3>
+      <h2>
+        Grammar Status:{" "}
+        {props.grammarResponse ? "Compiled ✔" : "Not yet compiled ❌"}
+      </h2>
       <ul>
-        <li>Implement grammar status itself (compiled / not compiled)</li>
-        <li>Implement custom theme definer.</li>
+        {props.grammarResponse && <h3>Tokens:</h3>}
+        {props.grammarResponse
+          ? props.grammarResponse.tokens.map((token: string) => (
+              <li>{token}</li>
+            ))
+          : ""}
       </ul>
     </Fragment>
   );

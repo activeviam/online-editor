@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 import { useLocalStorage } from "react-use";
-import { editor, IDisposable } from "monaco-editor";
+import { editor, IDisposable, Position } from "monaco-editor";
 import { useMonaco, Monaco } from "@monaco-editor/react";
 
 import { CustomTokensProvider } from "../CustomLanguageTokensProvider";
-import {
-  buildTokenColorRulesRandom,
-  buildTokenColorRulesRandom2,
-} from "../TokenizeTheme";
+import { buildTokenColorRulesRandom } from "../TokenizeTheme";
 import { FHEditorProps, FullHeightEditor } from "./FullHeightEditor";
 import { buildParsedTokensByLine } from "../RequestPostprocessing";
 
@@ -47,13 +44,9 @@ export const TokenizeEditor = (props: IProps) => {
     []
   );
 
-  const [disposableHover, setDisposableHover] = useState<
-    IDisposable | undefined
-  >();
+  const hoverDisposable = useRef<IDisposable | undefined>();
+  const tokenProviderDisposable = useRef<IDisposable | undefined>();
 
-  const [disposableTokenProvider, setDisposableTokenProvider] = useState<
-    IDisposable | undefined
-  >();
   const monaco = useMonaco();
 
   const handleOnMountEditor = (
@@ -63,6 +56,96 @@ export const TokenizeEditor = (props: IProps) => {
     monaco.languages.register({
       id: "customLanguage",
     });
+  };
+
+  const syntaxHighlightAndUpdateHover = useCallback(
+    (monaco: Monaco, tokensByLine: Map<number, TokenInfo[]>) => {
+      if (tokensByLine === undefined || monaco === null) {
+        return;
+      }
+
+      // Update Tokens
+      if (tokenProviderDisposable.current !== undefined) {
+        tokenProviderDisposable.current.dispose();
+      }
+
+      const tokenProviderDisposable_ = monaco.languages.setTokensProvider(
+        "customLanguage",
+        new CustomTokensProvider(tokensByLine)
+      );
+      tokenProviderDisposable.current = tokenProviderDisposable_;
+
+      // Update Hover
+      if (hoverDisposable.current !== undefined) {
+        hoverDisposable.current.dispose();
+      }
+
+      const hoverDisposable_ = monaco.languages.registerHoverProvider(
+        "customLanguage",
+        {
+          provideHover: (model: editor.ITextModel, position: Position) => {
+            const { column, lineNumber } = position;
+
+            const tokensCurrentLine = tokensByLine.get(lineNumber);
+
+            if (tokensCurrentLine === undefined) {
+              return { contents: [] };
+            } else if (tokensCurrentLine.length === 1) {
+              return {
+                contents: [{ value: getTokenHoverText(tokensCurrentLine[0]) }],
+              };
+            }
+
+            const correctToken = tokensCurrentLine
+              .slice()
+              .reverse()
+              .find((candidate: TokenInfo) => candidate.column < column);
+
+            if (correctToken === undefined) {
+              return { contents: [] };
+            }
+
+            return { contents: [{ value: getTokenHoverText(correctToken) }] };
+          },
+        }
+      );
+      hoverDisposable.current = hoverDisposable_;
+      monaco.editor.setTheme("customTheme");
+    },
+    [hoverDisposable, tokenProviderDisposable]
+  );
+
+  useEffect(() => {
+    if (monaco !== null && props.grammarResponse !== undefined) {
+      const rules = buildTokenColorRulesRandom(props.grammarResponse);
+      setThemeRules(rules);
+    }
+  }, [props.grammarResponse, monaco, setThemeRules]);
+
+  useEffect(() => {
+    if (monaco !== null && props.parsedCustomLanguage !== undefined) {
+      const currentTokensByLine = buildParsedTokensByLine(
+        props.parsedCustomLanguage
+      );
+      if (currentTokensByLine !== undefined) {
+        setTokensByLineStringified(
+          JSON.stringify(Array.from(currentTokensByLine.entries()))
+        );
+      } else {
+        setTokensByLineStringified(undefined);
+      }
+    }
+  }, [props.parsedCustomLanguage, monaco, setTokensByLineStringified]);
+
+  // Update syntax highlighting and hover when state changes.
+  useEffect(() => {
+    if (monaco === null) {
+      return () => {};
+    }
+    monaco.languages.register({
+      id: "customLanguage",
+    });
+
     monaco.editor.defineTheme("customTheme", {
       base: "vs",
       inherit: false,
@@ -76,121 +159,24 @@ export const TokenizeEditor = (props: IProps) => {
       ? new Map(JSON.parse(tokensByLineStringified))
       : new Map();
 
-    if (tokensByLine.size) {
-      // reload previous state
+    if (tokensByLine.size > 0) {
       syntaxHighlightAndUpdateHover(monaco, tokensByLine);
     }
-  };
-
-  const syntaxHighlightAndUpdateHover = (
-    monaco: Monaco,
-    tokensByLine: Map<number, TokenInfo[]>
-  ) => {
-    if (tokensByLine === undefined || monaco === null) {
-      return;
-    }
-
-    // Update Tokens
-    if (disposableTokenProvider !== undefined) {
-      disposableTokenProvider.dispose();
-    }
-    const tokenProviderDisposable_ = monaco.languages.setTokensProvider(
-      "customLanguage",
-      new CustomTokensProvider(tokensByLine)
-    );
-    setDisposableTokenProvider(tokenProviderDisposable_);
-
-    // Update Hover
-
-    if (disposableHover !== undefined) {
-      disposableHover.dispose();
-    }
-
-    const hoverDisposable_ = monaco.languages.registerHoverProvider(
-      "customLanguage",
-      {
-        provideHover: (
-          model: any,
-          position: { column: any; lineNumber: any }
-        ) => {
-          const { column, lineNumber } = position;
-
-          const tokensCurrentLine = tokensByLine.get(lineNumber);
-
-          if (tokensCurrentLine === undefined) {
-            return { contents: [] };
-          } else if (tokensCurrentLine.length === 1) {
-            return {
-              contents: [{ value: getTokenHoverText(tokensCurrentLine[0]) }],
-            };
-          }
-
-          const correctToken = tokensCurrentLine
-            .slice()
-            .reverse()
-            .find((candidate: TokenInfo) => candidate.column <= column);
-
-          if (correctToken === undefined) {
-            return { contents: [] };
-          }
-
-          return { contents: [{ value: getTokenHoverText(correctToken) }] };
-        },
-      }
-    );
-    setDisposableHover(hoverDisposable_);
-    monaco.editor.setTheme("customTheme");
-  };
-
-  useEffect(() => {
-    if (monaco && props.grammarResponse) {
-      monaco.editor.defineTheme("customTheme", {
-        base: "vs",
-        inherit: false,
-        rules: buildTokenColorRulesRandom(props.grammarResponse),
-        colors: {},
-      });
-    }
-  }, [props.grammarResponse, monaco]);
-
-  useEffect(() => {
-    if (monaco && props.parsedCustomLanguage) {
-      const rules = buildTokenColorRulesRandom2(
-        props.parsedCustomLanguage.ruleNames
-      );
-      setThemeRules(rules);
-      monaco.editor.defineTheme("customTheme", {
-        base: "vs",
-        inherit: false,
-        rules: rules,
-        colors: { "editorLineNumber.foreground": "ff0000" },
-      });
-
-      const currentTokensByLine = buildParsedTokensByLine(
-        props.parsedCustomLanguage
-      );
-      if (currentTokensByLine !== undefined) {
-        syntaxHighlightAndUpdateHover(monaco, currentTokensByLine);
-        setTokensByLineStringified(
-          JSON.stringify(Array.from(currentTokensByLine.entries()))
-        );
-      }
-    }
   }, [
-    props.parsedCustomLanguage,
     monaco,
-    setThemeRules,
-    setTokensByLineStringified,
-  ]); // TODO: Fix Dependencies
+    themeRules,
+    tokensByLineStringified,
+    syntaxHighlightAndUpdateHover,
+  ]);
 
   // cleanup token provider and hover if there is one before exiting
   useEffect(() => {
     return () => {
-      if (disposableTokenProvider) {
-        disposableTokenProvider.dispose();
+      if (tokenProviderDisposable.current) {
+        tokenProviderDisposable.current.dispose();
       }
-      if (disposableHover) {
-        disposableHover.dispose();
+      if (hoverDisposable.current) {
+        hoverDisposable.current.dispose();
       }
     };
   });

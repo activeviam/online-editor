@@ -15,29 +15,27 @@ const LightOceanColors = [
   "d18771",
 ];
 
+const OneLightUI = [
+  "346ADF",
+  "A626A4",
+  "50A14F",
+  "E45649",
+  "CA1243",
+  "4078F2",
+  "986801",
+  "C18401",
+];
+
 // TODO: add theme selector.
 
 export const buildTokenColorRulesRandom = (
   grammarResponse: GrammarRequestResult
 ): monaco.editor.ITokenThemeRule[] => {
-  const { allPossibleTokens } = grammarResponse;
-  return allPossibleTokens
-    ? allPossibleTokens.map((tokenId: string, index: number) => ({
-        token: tokenId,
-        foreground: LightOceanColors[index % LightOceanColors.length],
-        fontStyle: "bold",
-      }))
-    : [];
-};
-
-export const buildTokenColorRulesRandom2 = (
-  tokens: string[]
-): monaco.editor.ITokenThemeRule[] => {
+  const { tokens } = grammarResponse;
   return tokens
     ? tokens.map((tokenId: string, index: number) => ({
         token: tokenId,
-        foreground: LightOceanColors[index % LightOceanColors.length],
-        fontStyle: "bold",
+        foreground: OneLightUI[index % OneLightUI.length],
       }))
     : [];
 };

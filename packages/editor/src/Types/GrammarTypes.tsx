@@ -1,3 +1,3 @@
 export interface GrammarRequestResult {
-  allPossibleTokens: string[];
+  tokens: string[];
 }
