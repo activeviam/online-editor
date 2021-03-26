@@ -8,13 +8,18 @@ interface IProps {
   onClickParse: () => void;
 }
 
-export const UserDefinedLanguageMenu = (props: IProps) => {
+export const TokenizeMenu = (props: IProps) => {
   return (
     <div className="whole-menu">
       <div className="menu-left" />
       <div className="menu-right">
-        <Button variant="outlined" color="primary" onClick={props.onClickParse}>
-          Parse User Defined Language
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={props.onClickParse}
+          size="small"
+        >
+          Tokenize
         </Button>
       </div>
     </div>
