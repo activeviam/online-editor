@@ -118,12 +118,12 @@ export class SequentialThemeProvider extends TokenizeThemeProvider {
     const colorPalette = getSequentialColorPalette(colorPaletteId);
     if (colorPalette !== undefined) {
       this.colorPalette = colorPalette;
+      this.attributeSequentialColors(tokenPragmaticIds);
     } else {
       console.warn(
         `Couldn't find color palette of id ${colorPaletteId}. Leaving empty...`
       );
     }
-    this.attributeSequentialColors(tokenPragmaticIds);
   }
 
   private attributeSequentialColors(tokenPragmaticIds: TokenPragmaticId[]) {
