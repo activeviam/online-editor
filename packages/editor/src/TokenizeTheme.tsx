@@ -1,27 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+/* Defines how tokenize will attribute colors to tokens during syntax highlighting. */
+
 import { editor } from "monaco-editor";
 import { useLocalStorage } from "react-use";
 
 import { TokenInfo } from "./Types/TokenizeTypes";
-
-/* The Tokenize Theme Provider is used to attribute colors for the syntax highlighting.
-   Currently, there are two implementations of TokenizeTheme:
-     * SequentialTheme: use a color palette array to attribute tokens to colors
-       sequentially.
-     * CustomTheme: Dinamically change token colors.
-       Can inherit from old Custom Theme and/or use a sequential theme as
-       default when no color provided for a particular token.
-*/
-
-export const getTokenPragmaticDescription = (
-  token: TokenInfo
-): TokenPragmaticId => {
-  const hoverValue = token.type.startsWith("T__")
-    ? `'${token.text}'`
-    : token.type;
-  return hoverValue;
-};
 
 /*
   The pragmatic id is either the name of the the token if non-generic
@@ -33,6 +17,14 @@ type TokenPragmaticId = string;
 // color used to syntax highlight a given token
 type TokenizeColor = string;
 
+/* The Tokenize Theme Provider is used to attribute colors for the syntax highlighting.
+   Currently, there are two implementations of TokenizeTheme:
+     * SequentialTheme: use a color palette array to attribute tokens to colors
+       sequentially.
+     * CustomTheme: Dinamically change token colors.
+       Can inherit from old Custom Theme and/or use a sequential theme as
+       default when no color provided for a particular token.
+*/
 export abstract class TokenizeThemeProvider {
   colorsAssigned: Map<TokenPragmaticId, TokenizeColor>;
 
@@ -199,9 +191,9 @@ export class CustomThemeProvider extends TokenizeThemeProvider {
   }
 }
 
-/* Hooks */
+/* Utilities */
 
-// automatically save serialized theme to local storage
+// hook to automatically save serialized theme to local storage
 export const useLocalStorageThemeProvider = (
   initialValue: TokenizeThemeProvider | undefined = undefined
 ): [
@@ -266,4 +258,13 @@ export const useLocalStorageThemeProvider = (
   }, [themeProvider, setSequentialPaletteId, setColorsAssignedSerialized]);
 
   return [themeProvider, setThemeProvider];
+};
+
+export const getTokenPragmaticDescription = (
+  token: TokenInfo
+): TokenPragmaticId => {
+  const hoverValue = token.type.startsWith("T__")
+    ? `'${token.text}'`
+    : token.type;
+  return hoverValue;
 };
