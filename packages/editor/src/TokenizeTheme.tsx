@@ -252,6 +252,8 @@ export const useLocalStorageThemeProvider = (
         setColorsAssignedSerialized(serialized.colorsAssigned);
         if (serialized.colorPaletteId) {
           setSequentialPaletteId(serialized.colorPaletteId);
+        } else {
+          setSequentialPaletteId(undefined);
         }
       }
     };
