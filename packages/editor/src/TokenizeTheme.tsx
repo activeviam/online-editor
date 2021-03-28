@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, Dispatch, SetStateAction } from "react";
 
 /* Defines how tokenize will attribute colors to tokens during syntax highlighting. */
 
@@ -53,6 +53,10 @@ export abstract class TokenizeThemeProvider {
     return {
       colorsAssigned: JSON.stringify(Array.from(this.colorsAssigned)),
     };
+  }
+
+  public deserialize(stringifiedTokenColors: string) {
+    this.colorsAssigned = new Map(JSON.parse(stringifiedTokenColors));
   }
 }
 
@@ -198,7 +202,7 @@ export const useLocalStorageThemeProvider = (
   initialValue: TokenizeThemeProvider | undefined = undefined
 ): [
   TokenizeThemeProvider | undefined,
-  React.Dispatch<React.SetStateAction<TokenizeThemeProvider | undefined>>
+  Dispatch<SetStateAction<TokenizeThemeProvider | undefined>>
 ] => {
   const [
     colorsAssignedSerialized,
@@ -216,10 +220,6 @@ export const useLocalStorageThemeProvider = (
 
   useEffect(() => {
     if (themeProvider === undefined && colorsAssignedSerialized !== undefined) {
-      console.log("set provider");
-      const colorsAssigned = new Map<TokenPragmaticId, TokenizeColor>(
-        JSON.parse(colorsAssignedSerialized)
-      );
       if (sequentialPaletteId !== undefined) {
         if (getSequentialColorPalette(sequentialPaletteId) === undefined) {
           setSequentialPaletteId(undefined);
@@ -230,11 +230,11 @@ export const useLocalStorageThemeProvider = (
           [],
           sequentialPaletteId
         );
-        newThemeProvider.colorsAssigned = colorsAssigned;
+        newThemeProvider.deserialize(colorsAssignedSerialized);
         setThemeProvider(newThemeProvider);
       } else {
         const newThemeProvider = new CustomThemeProvider([]);
-        newThemeProvider.colorsAssigned = colorsAssigned;
+        newThemeProvider.deserialize(colorsAssignedSerialized);
         setThemeProvider(newThemeProvider);
       }
     }
