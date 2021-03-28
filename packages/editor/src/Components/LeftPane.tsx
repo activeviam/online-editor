@@ -17,11 +17,11 @@ import "./Panes.css";
 
 interface IProps {
   grammarResponse: GrammarRequestResult | undefined;
-  isGrammarCompiled: Boolean | undefined;
+  isGrammarCompiled: boolean | undefined;
   tabValue: number;
   themeProvider: TokenizeThemeProvider | undefined;
   setGrammarResponse: (response: GrammarRequestResult) => void;
-  setIsGrammarCompiled: (isIt: Boolean) => void;
+  setIsGrammarCompiled: (isIt: boolean) => void;
   setTabValue: (tabValue: number) => void;
   setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
 }

@@ -16,7 +16,7 @@ import "./Menu.css";
 
 interface IProps {
   grammarResponse: GrammarRequestResult | undefined;
-  isGrammarCompiled: Boolean | undefined;
+  isGrammarCompiled: boolean | undefined;
   tabValue: number;
 }
 

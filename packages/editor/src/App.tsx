@@ -15,7 +15,7 @@ const App = () => {
     GrammarRequestResult
   >("grammarRequestResult");
 
-  const [isGrammarCompiled, setIsGrammarCompiled] = useLocalStorage<Boolean>(
+  const [isGrammarCompiled, setIsGrammarCompiled] = useLocalStorage<boolean>(
     "isGrammarCompiled",
     false
   );

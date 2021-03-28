@@ -17,8 +17,8 @@ import { GrammarRequestResult } from "../Types/GrammarTypes";
 import "./Panes.css";
 
 interface IProps {
-  isGrammarCompiled: Boolean | undefined;
-  setIsGrammarCompiled: (isIt: Boolean) => void;
+  isGrammarCompiled: boolean | undefined;
+  setIsGrammarCompiled: (isIt: boolean) => void;
   setGrammarResponse: (response: GrammarRequestResult) => void;
 }
 
