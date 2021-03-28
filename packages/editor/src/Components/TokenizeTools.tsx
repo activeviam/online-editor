@@ -9,14 +9,15 @@ import { useLocalStorage } from "react-use";
 import { parseCustomLanguage } from "../requests";
 import { TokenizeMenu } from "./TokenizeMenu";
 import { TokenizeEditor } from "./TokenizeEditor";
+import { TokenizeThemeProvider } from "../TokenizeTheme";
 
-import { GrammarRequestResult } from "../Types/GrammarTypes";
 import { ParsedCustomLanguage } from "../Types/TokenizeTypes";
 
 import "./Panes.css";
 
 interface IProps {
-  grammarResponse: GrammarRequestResult | undefined;
+  themeProvider: TokenizeThemeProvider | undefined;
+  setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
 }
 
 export const TokenizeTools = (props: IProps) => {
@@ -55,8 +56,9 @@ export const TokenizeTools = (props: IProps) => {
         <TokenizeEditor
           onChange={handleCustomLanguageChange}
           value={customLanguage || ""}
-          grammarResponse={props.grammarResponse}
           parsedCustomLanguage={parsedCustomLanguage}
+          themeProvider={props.themeProvider}
+          setThemeProvider={props.setThemeProvider}
         />
       </div>
     </div>

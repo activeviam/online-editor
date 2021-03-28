@@ -4,6 +4,7 @@ import React from "react";
 Component that contains the grammar editor and its menu.
 */
 
+import { editor } from "monaco-editor";
 import { useLocalStorage } from "react-use";
 
 import { helloGrammar } from "../GrammarExamples/HelloGrammar";
@@ -16,6 +17,8 @@ import { GrammarRequestResult } from "../Types/GrammarTypes";
 import "./Panes.css";
 
 interface IProps {
+  isGrammarCompiled: Boolean | undefined;
+  setIsGrammarCompiled: (isIt: Boolean) => void;
   setGrammarResponse: (response: GrammarRequestResult) => void;
 }
 
@@ -23,12 +26,18 @@ export const GrammarTools = (props: IProps) => {
   const [grammar, setGrammar] = useLocalStorage("userGrammar", helloGrammar);
   const [grammarRoot, setGrammarRoot] = useLocalStorage("grammarRoot", "root"); // Grammar Root Node
 
-  const handleGrammarChange = (changedGrammar: string | undefined) => {
+  const handleGrammarChange = (
+    changedGrammar: string | undefined,
+    ev: editor.IModelContentChangedEvent
+  ) => {
     if (changedGrammar === undefined) {
       console.error("Undefined grammar state.");
       return;
     }
     setGrammar(changedGrammar);
+    if (ev.changes.length && props.isGrammarCompiled !== false) {
+      props.setIsGrammarCompiled(false);
+    }
   };
 
   const handleCompileGrammarClick = async () => {
@@ -41,6 +50,9 @@ export const GrammarTools = (props: IProps) => {
     }
     const grammarResponse = await uploadGrammar(grammar, grammarRoot);
     props.setGrammarResponse(grammarResponse);
+    if (props.isGrammarCompiled !== true) {
+      props.setIsGrammarCompiled(true);
+    }
   };
 
   const handleFilePickChange = async (file: File) => {
