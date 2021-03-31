@@ -6,9 +6,10 @@ React component containing the grammar editor and buttons.
 
 import { AppBar, Tab, Tabs } from "@material-ui/core";
 
-import { TokenizeTools } from "./TokenizeTools";
-import { GrammarTools } from "./GrammarTools";
 import { TabPanel } from "../Misc/TabPanel";
+import { GrammarTools } from "./GrammarTools";
+import { TokenizeThemeProvider } from "../TokenizeTheme";
+import { TokenizeTools } from "./TokenizeTools";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 
@@ -16,9 +17,13 @@ import "./Panes.css";
 
 interface IProps {
   grammarResponse: GrammarRequestResult | undefined;
-  setGrammarResponse: (response: GrammarRequestResult) => void;
+  isGrammarCompiled: boolean | undefined;
   tabValue: number;
+  themeProvider: TokenizeThemeProvider | undefined;
+  setGrammarResponse: (response: GrammarRequestResult) => void;
+  setIsGrammarCompiled: (isIt: boolean) => void;
   setTabValue: (tabValue: number) => void;
+  setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
 }
 
 export const LeftPane = (props: IProps) => {
@@ -45,10 +50,17 @@ export const LeftPane = (props: IProps) => {
         </Tabs>
       </AppBar>
       <TabPanel value={props.tabValue} index={0}>
-        <GrammarTools setGrammarResponse={props.setGrammarResponse} />
+        <GrammarTools
+          isGrammarCompiled={props.isGrammarCompiled}
+          setIsGrammarCompiled={props.setIsGrammarCompiled}
+          setGrammarResponse={props.setGrammarResponse}
+        />
       </TabPanel>
       <TabPanel value={props.tabValue} index={1}>
-        <TokenizeTools grammarResponse={props.grammarResponse} />
+        <TokenizeTools
+          themeProvider={props.themeProvider}
+          setThemeProvider={props.setThemeProvider}
+        />
       </TabPanel>
       <TabPanel value={props.tabValue} index={2}>
         <h3>Not yet implemented.</h3>

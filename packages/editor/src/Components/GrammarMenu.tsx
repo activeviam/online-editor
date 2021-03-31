@@ -31,7 +31,8 @@ export const GrammarMenu = (props: IProps) => {
             onChange={(e) => {
               props.onChangeRootNode(e.target.value);
             }}
-            placeholder="Grammar Root Node"
+            placeholder="Grammar Root"
+            label="Grammar Root"
             value={props.grammarRoot}
             error={props.grammarRoot === ""}
             helperText={
