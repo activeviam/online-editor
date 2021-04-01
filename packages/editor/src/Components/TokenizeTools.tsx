@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 /*
 Component containing the user defined language editor and its menu.
@@ -29,6 +29,11 @@ export const TokenizeTools = (props: IProps) => {
     ParsedCustomLanguage | undefined
   >();
 
+  const [shouldAutoTokenize, setShouldAutoTokenize] = useLocalStorage<boolean>(
+    "shouldAutoTokenize",
+    false
+  );
+
   const handleCustomLanguageChange = (
     changedCustomLanguage: string | undefined
   ) => {
@@ -47,18 +52,31 @@ export const TokenizeTools = (props: IProps) => {
     setParsedCustomLanguage(parsed);
   };
 
+  useEffect(() => {
+    if (customLanguage !== undefined && shouldAutoTokenize) {
+      const fetchTokenized = async () => {
+        const tokenized = await parseCustomLanguage(customLanguage);
+        setParsedCustomLanguage(tokenized);
+      };
+      fetchTokenized();
+    }
+  }, [customLanguage, shouldAutoTokenize]);
+
   return (
     <div className="whole-pane">
       <div className="custom-language-menu">
-        <TokenizeMenu onClickParse={handleParseClick} />
+        <TokenizeMenu
+          onClickParse={handleParseClick}
+          shouldAutoTokenize={shouldAutoTokenize}
+          setShouldAutoTokenize={setShouldAutoTokenize}
+        />
       </div>
       <div className="editor">
         <TokenizeEditor
+          {...props}
           onChange={handleCustomLanguageChange}
           value={customLanguage || ""}
           parsedCustomLanguage={parsedCustomLanguage}
-          themeProvider={props.themeProvider}
-          setThemeProvider={props.setThemeProvider}
         />
       </div>
     </div>
