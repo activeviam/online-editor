@@ -1,4 +1,5 @@
 import { languages } from "monaco-editor";
+import { getTokenPragmaticDescription } from "../TokenizeTheme";
 
 import { TokenInfo } from "../Types/TokenizeTypes";
 
@@ -42,7 +43,7 @@ export class CustomTokensProvider implements languages.TokensProvider {
     const lineTokens = tokensThisLine
       ? tokensThisLine.map((token: TokenInfo) => ({
           startIndex: token.column,
-          scopes: token.type,
+          scopes: getTokenPragmaticDescription(token),
         }))
       : [];
 

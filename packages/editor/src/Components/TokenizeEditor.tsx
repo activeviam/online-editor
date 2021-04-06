@@ -1,15 +1,21 @@
 import React, { useEffect, useMemo, useRef } from "react";
 
-import { useLocalStorage } from "react-use";
+import { useLocalStorage, useEffectOnce } from "react-use";
 import { IDisposable } from "monaco-editor";
 import { useMonaco, Monaco } from "@monaco-editor/react";
 
 import { CustomTokensProvider } from "../TokenizeLogic/CustomLanguageTokensProvider";
 import { FHEditorProps, FullHeightEditor } from "./FullHeightEditor";
 import { buildParsedTokensByLine } from "../RequestPostprocessing";
+import { CustomLanguageCompletionItemProvider } from "../TokenizeLogic/completionProvider";
 import { getTokenizeHoverProvider } from "../TokenizeLogic/TokenizeHoverProvider";
-import { TokenizeThemeProvider } from "../TokenizeTheme";
+import {
+  CustomThemeProvider,
+  SequentialThemeProvider,
+  ThemeMode,
+} from "../TokenizeTheme";
 
+import { GrammarRequestResult } from "../Types/GrammarTypes";
 import { ParsedCustomLanguage, TokenInfo } from "../Types/TokenizeTypes";
 
 import "./Menu.css";
@@ -21,9 +27,11 @@ with color highlighting according to the user's grammar.
 
 interface IProps extends FHEditorProps {
   value: string;
+  grammarResponse: GrammarRequestResult | undefined;
+  customThemeProvider: CustomThemeProvider;
+  sequentialThemeProvider: SequentialThemeProvider | undefined;
   parsedCustomLanguage: ParsedCustomLanguage | undefined;
-  themeProvider: TokenizeThemeProvider | undefined;
-  setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
+  themeMode: ThemeMode | undefined;
   defaultLanguage?: never;
   language?: never;
 }
@@ -35,6 +43,9 @@ export const TokenizeEditor = (props: IProps) => {
 
   const hoverDisposable = useRef<IDisposable | undefined>();
   const tokenProviderDisposable = useRef<IDisposable | undefined>();
+  const completionDisposable = useRef<IDisposable | undefined>();
+
+  const tokenProvider = useRef<CustomTokensProvider>();
 
   const monaco = useMonaco();
 
@@ -45,16 +56,9 @@ export const TokenizeEditor = (props: IProps) => {
       }
 
       // Update Tokens
-      const tokenProviderDisposable_ = monaco.languages.setTokensProvider(
-        "customLanguage",
-        new CustomTokensProvider(tokensByLine)
-      );
-
-      if (tokenProviderDisposable.current !== undefined) {
-        tokenProviderDisposable.current.dispose();
+      if (tokenProvider.current) {
+        tokenProvider.current.tokensByLine = tokensByLine;
       }
-
-      tokenProviderDisposable.current = tokenProviderDisposable_;
 
       // Update Hover
       const hoverProvider = getTokenizeHoverProvider(tokensByLine);
@@ -67,12 +71,11 @@ export const TokenizeEditor = (props: IProps) => {
       }
 
       hoverDisposable.current = hoverDisposable_;
-      monaco.editor.setTheme("customTheme");
     },
-    [hoverDisposable, tokenProviderDisposable]
+    [hoverDisposable]
   );
 
-  const { parsedCustomLanguage, setThemeProvider } = props;
+  const { parsedCustomLanguage } = props;
   useEffect(() => {
     if (monaco !== null && parsedCustomLanguage !== undefined) {
       const currentTokensByLine = buildParsedTokensByLine(parsedCustomLanguage);
@@ -87,23 +90,26 @@ export const TokenizeEditor = (props: IProps) => {
   }, [
     monaco,
     parsedCustomLanguage,
-    setThemeProvider,
     tokensByLineStringified,
     setTokensByLineStringified,
   ]);
 
-  // Update syntax highlighting and hover when state changes.
+  // Update syntax highlighting and hover with new theme or tokens
+  const { sequentialThemeProvider, customThemeProvider, themeMode } = props;
   useEffect(() => {
     if (monaco === null) {
       return () => {};
     }
 
-    monaco.languages.register({
-      id: "customLanguage",
-    });
+    const selectedThemeProvider =
+      themeMode === ThemeMode.Sequential
+        ? sequentialThemeProvider
+        : customThemeProvider;
 
     const rules =
-      props.themeProvider !== undefined ? props.themeProvider.buildRules() : [];
+      selectedThemeProvider !== undefined
+        ? selectedThemeProvider.buildRules()
+        : [];
 
     monaco.editor.defineTheme("customTheme", {
       base: "vs",
@@ -114,22 +120,48 @@ export const TokenizeEditor = (props: IProps) => {
 
     monaco.editor.setTheme("customTheme");
 
-    const tokensByLine: Map<number, TokenInfo[]> = tokensByLineStringified
-      ? new Map(JSON.parse(tokensByLineStringified))
-      : new Map();
+    const tokensByLine = deserializeTokensByLine(tokensByLineStringified);
 
     if (tokensByLine.size > 0) {
       syntaxHighlightAndUpdateHover(monaco, tokensByLine);
     }
   }, [
-    props.themeProvider,
+    sequentialThemeProvider,
+    customThemeProvider,
+    themeMode,
     monaco,
     tokensByLineStringified,
     syntaxHighlightAndUpdateHover,
   ]);
 
-  // cleanup token provider and hover if there is one before exiting
   useEffect(() => {
+    if (monaco !== null && props.grammarResponse !== undefined) {
+      completionDisposable.current = monaco.languages.registerCompletionItemProvider(
+        "customLanguage",
+        new CustomLanguageCompletionItemProvider(props.grammarResponse.tokens)
+      );
+
+      return () => {
+        if (completionDisposable.current !== undefined) {
+          completionDisposable.current.dispose();
+        }
+      };
+    }
+  }, [monaco, props.grammarResponse]);
+
+  useEffectOnce(() => {
+    if (monaco !== null) {
+      monaco.languages.register({
+        id: "customLanguage",
+      });
+
+      const tokensByLine = deserializeTokensByLine(tokensByLineStringified);
+      tokenProvider.current = new CustomTokensProvider(tokensByLine);
+      tokenProviderDisposable.current = monaco.languages.setTokensProvider(
+        "customLanguage",
+        tokenProvider.current
+      );
+    }
     return () => {
       if (tokenProviderDisposable.current) {
         tokenProviderDisposable.current.dispose();
@@ -137,8 +169,11 @@ export const TokenizeEditor = (props: IProps) => {
       if (hoverDisposable.current) {
         hoverDisposable.current.dispose();
       }
+      if (completionDisposable.current) {
+        completionDisposable.current.dispose();
+      }
     };
-  }, []);
+  });
 
   return (
     <FullHeightEditor
@@ -149,4 +184,13 @@ export const TokenizeEditor = (props: IProps) => {
       loading={props.loading ? props.loading : ""}
     />
   );
+};
+
+const deserializeTokensByLine = (
+  tokensByLineStringified: string | undefined
+) => {
+  const tokensByLine: Map<number, TokenInfo[]> = tokensByLineStringified
+    ? new Map(JSON.parse(tokensByLineStringified))
+    : new Map();
+  return tokensByLine;
 };
