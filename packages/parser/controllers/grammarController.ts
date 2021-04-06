@@ -12,11 +12,12 @@ import {
 } from "./grammarTemplatesGenerator";
 dotenv.config();
 
+import { AntlrError } from "../errors/antlrError";
+
 // Constants
 const ANTLR4TS = process.env.ANTLR4TS || "";
 const ANTLR_FLAGS = process.env.ANTLR_FLAGS || "";
 const GRAMMAR_STORAGE = process.env.GRAMMAR_STORAGE || "grammar";
-
 
 // File Upload handlers
 const storage = multer.diskStorage({
@@ -45,7 +46,17 @@ const getGrammarTokens = async (
     `../grammar/${sessionID}/${grammarName}Lexer.ts`
   );
   const lexerClass = grammarLexer[`${grammarName}Lexer`];
-  return lexerClass.ruleNames;
+  console.log(lexerClass.VOCABULARY);
+
+  const ruleNames = lexerClass.ruleNames;
+  const literals = lexerClass._LITERAL_NAMES;
+  return ruleNames.map((token: string) => {
+    if (token.startsWith("T__")) {
+      const ind = parseInt(token.substring(3));
+      return literals[ind + 1];
+    }
+    return token;
+  });
 };
 
 // Compiling Grammar to parser and lexer
@@ -61,14 +72,20 @@ const runAntlr = (
     // Compile the grammar. The compilation flags are set in the .env file
     const child = spawn(ANTLR4TS, [...ANTLR_FLAGS.split(" "), grammarPath]);
 
-    /* child.stdout.on("data", (data) => console.log("stdout", data.toString())); */
-    child.stderr.on("data", (data) => console.log(data.toString()));
+    const compilationErrors: string[] = [];
+    child.stderr.on("data", (data) => {
+      compilationErrors.push(data.toString());
+    });
 
     child.on("exit", () => {
-      generateParserFile(grammarName, directory);
-      generateLexerFile(grammarName, grammarRoot, directory);
-      generateAstTreeFile(grammarName, grammarRoot, directory);
-      resolve(true);
+      if (compilationErrors.length) {
+        reject(new AntlrError("Error at grammar compiling", compilationErrors));
+      } else {
+        generateParserFile(grammarName, directory);
+        generateLexerFile(grammarName, grammarRoot, directory);
+        generateAstTreeFile(grammarName, grammarRoot, directory);
+        resolve(true);
+      }
     });
   });
 };
@@ -80,22 +97,27 @@ export const compileGrammarFile = (req: any, res: any) => {
     if (err) {
       return res.status(500).json(err);
     }
+    // Run ANTLR on the grammar file
+    runAntlr(req.file.filename, req.file.path, req.body.grammarRoot)
+      .then(async () => {
+        // Storing grammar data in the session
+        const grammar = Object();
+        grammar.name = req.file.filename.split(".")[0];
+        grammar.root = req.body.grammarRoot;
+        req.session.grammar = grammar;
 
-    await runAntlr(req.file.filename, req.file.path, req.body.grammarRoot);
-
-    // Storing grammar data in the session
-    const grammar = Object();
-    grammar.name = req.file.filename.split(".")[0];
-    grammar.root = req.body.grammarRoot;
-    req.session.grammar = grammar;
-
-    return res.status(200).json({
-      tokens: await getGrammarTokens(req.sessionID, grammar.name),
-    });
+        return res.status(200).json({
+          tokens: await getGrammarTokens(req.sessionID, grammar.name),
+        });
+      })
+      .catch((err: Error) => {
+        if (err instanceof AntlrError) return res.status(400).json(err);
+        else return res.status(500).json(err);
+      });
   });
 };
 
-export const compileGrammarString = async (req: any, res: any) => {
+export const compileGrammarString = (req: any, res: any) => {
   const grammarString: string = req.body.grammar;
 
   /*
@@ -123,15 +145,20 @@ export const compileGrammarString = async (req: any, res: any) => {
   fs.writeFileSync(path.join(_path, filename), grammarString);
 
   // Run ANTLR on the grammar file
-  await runAntlr(filename, path.join(_path, filename), req.body.grammarRoot);
+  runAntlr(filename, path.join(_path, filename), req.body.grammarRoot)
+    .then(async () => {
+      // Storing grammar data in the session
+      const grammar = Object();
+      grammar.name = grammarName;
+      grammar.root = req.body.grammarRoot;
+      req.session.grammar = grammar;
 
-  // Storing grammar data in the session
-  const grammar = Object();
-  grammar.name = grammarName;
-  grammar.root = req.body.grammarRoot;
-  req.session.grammar = grammar;
-  
-  return res.status(200).json({
-    tokens: await getGrammarTokens(req.sessionID, grammar.name),
-  });
+      return res.status(200).json({
+        tokens: await getGrammarTokens(req.sessionID, grammar.name),
+      });
+    })
+    .catch((err: Error) => {
+      if (err instanceof AntlrError) return res.status(400).json(err);
+      else return res.status(500).json(err);
+    });
 };
