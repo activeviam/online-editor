@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MutableRefObject } from "react";
 
 /*
 React component containing the user defined language editor and button.
@@ -8,7 +8,12 @@ import { Paper, Typography } from "@material-ui/core";
 
 import { TabPanel } from "../Misc/TabPanel";
 import { GrammarInfo } from "./GrammarInfo";
-import { TokenizeThemeProvider } from "../TokenizeTheme";
+import {
+  CustomThemeProvider,
+  SequentialThemeProvider,
+  ThemeMode,
+  TokenizeThemeProvider,
+} from "../TokenizeTheme";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 
@@ -16,15 +21,20 @@ import "./Panes.css";
 import "./Menu.css";
 
 interface IProps {
+  currentThemeProvider: MutableRefObject<TokenizeThemeProvider | undefined>;
+  customThemeProvider: CustomThemeProvider;
   grammarResponse: GrammarRequestResult | undefined;
   isGrammarCompiled: boolean | undefined;
   sequentialPaletteId: string | undefined;
-  themeMode: string | undefined;
+  sequentialThemeProvider: SequentialThemeProvider | undefined;
+  themeMode: ThemeMode | undefined;
   tabValue: number;
-  themeProvider: TokenizeThemeProvider | undefined;
   setSequentialPaletteId: (id: string) => void;
-  setThemeMode: (mode: string) => void;
-  setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
+  setThemeMode: (mode: ThemeMode | undefined) => void;
+  setSequentialThemeProvider: (
+    themeProvider: SequentialThemeProvider | undefined
+  ) => void;
+  setCustomThemeProvider: (themeProvider: CustomThemeProvider) => void;
 }
 
 export const RightPane = (props: IProps) => {

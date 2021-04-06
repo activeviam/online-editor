@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { MutableRefObject } from "react";
 
 /*
 Component that contains the grammar editor and its menu.
@@ -11,10 +11,7 @@ import { helloGrammar } from "../GrammarExamples/HelloGrammar";
 import { uploadGrammar, uploadGrammarFromFile } from "../requests";
 import { GrammarEditor } from "./GrammarEditor";
 import { GrammarMenu } from "./GrammarMenu";
-import {
-  SequentialThemeProvider,
-  TokenizeThemeProvider,
-} from "../TokenizeTheme";
+import { ThemeMode, TokenizeThemeProvider } from "../TokenizeTheme";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 
@@ -24,11 +21,10 @@ interface IProps {
   grammarResponse: GrammarRequestResult | undefined;
   isGrammarCompiled: boolean | undefined;
   sequentialPaletteId: string | undefined;
-  themeMode: string | undefined;
-  themeProvider: TokenizeThemeProvider | undefined;
+  themeMode: ThemeMode | undefined;
+  currentThemeProvider: MutableRefObject<TokenizeThemeProvider | undefined>;
   setIsGrammarCompiled: (isIt: boolean) => void;
   setGrammarResponse: (response: GrammarRequestResult) => void;
-  setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
 }
 
 export const GrammarTools = (props: IProps) => {
@@ -58,9 +54,11 @@ export const GrammarTools = (props: IProps) => {
       return;
     }
     const grammarResponse = await uploadGrammar(grammar, grammarRoot);
-    props.setGrammarResponse(grammarResponse);
-    if (props.isGrammarCompiled !== true) {
+    if (grammarResponse !== undefined) {
+      props.setGrammarResponse(grammarResponse);
       props.setIsGrammarCompiled(true);
+    } else {
+      props.setIsGrammarCompiled(false);
     }
   };
 
@@ -77,18 +75,6 @@ export const GrammarTools = (props: IProps) => {
     const grammarResponse = await uploadGrammarFromFile(file, grammarRoot);
     props.setGrammarResponse(grammarResponse);
   };
-
-  const { grammarResponse, sequentialPaletteId, setThemeProvider } = props;
-  useEffect(() => {
-    if (grammarResponse !== undefined && sequentialPaletteId !== undefined) {
-      const tokenPragmaticIds = grammarResponse.tokens;
-      if (tokenPragmaticIds.length > 0) {
-        setThemeProvider(
-          new SequentialThemeProvider(tokenPragmaticIds, sequentialPaletteId)
-        );
-      }
-    }
-  }, [grammarResponse, sequentialPaletteId, setThemeProvider]);
 
   return (
     <div className="whole-pane">

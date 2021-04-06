@@ -1,9 +1,9 @@
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 
 /* Defines how tokenize will attribute colors to tokens during syntax highlighting. */
 
 import { editor } from "monaco-editor";
-import { useLocalStorage } from "react-use";
+import { useEffectOnce, useLocalStorage } from "react-use";
 
 import { TokenInfo } from "./Types/TokenizeTypes";
 
@@ -12,10 +12,15 @@ import { TokenInfo } from "./Types/TokenizeTypes";
   or the token's text between single quotes if generic.
   (generic tokens start with T__ and have been created automatically by ANTLR)
 */
-type TokenPragmaticId = string;
+export type TokenPragmaticId = string;
 
 // color used to syntax highlight a given token
-type TokenizeColor = string;
+export type TokenizeColor = string;
+
+export enum ThemeMode {
+  Sequential = "sequential",
+  Custom = "custom",
+}
 
 /* The Tokenize Theme Provider is used to attribute colors for the syntax highlighting.
    Currently, there are two implementations of TokenizeTheme:
@@ -40,14 +45,23 @@ export abstract class TokenizeThemeProvider {
   }
 
   public buildRules(): editor.ITokenThemeRule[] {
-    const rules = [...this.colorsAssigned.entries()].map(
-      ([tokenPragmaticId, color]) => ({
-        token: tokenPragmaticId,
-        foreground: color,
-      })
-    );
+    const rules = [...this.colorsAssigned.keys()].map((tokenPragmaticId) => ({
+      token: tokenPragmaticId,
+      foreground: this.getTokenColor(tokenPragmaticId),
+    }));
     return rules;
   }
+
+  public customizeColor(
+    tokenPragmaticId: TokenPragmaticId,
+    color: TokenizeColor
+  ) {
+    console.warn(
+      "Customize not implemented in TokenizeThemeProvider base class. Ignoring..."
+    );
+  }
+
+  public changeColorPalette(newPaletteId: SequentialPaletteId) {}
 
   public serialize(): { colorsAssigned: string; colorPaletteId?: string } {
     return {
@@ -55,13 +69,29 @@ export abstract class TokenizeThemeProvider {
     };
   }
 
+  public updateTokens(newTokens: TokenPragmaticId[]) {
+    const newTokensSet = new Set(newTokens);
+    this.colorsAssigned = new Map(
+      [...this.colorsAssigned].filter(([tokenPragmaticId, _]) =>
+        newTokensSet.has(tokenPragmaticId)
+      )
+    );
+  }
+
   public deserialize(stringifiedTokenColors: string) {
     this.colorsAssigned = new Map(JSON.parse(stringifiedTokenColors));
+  }
+
+  private tokensColorsToRule(tokenColors: [TokenPragmaticId, TokenizeColor][]) {
+    return tokenColors.map(([tokenPragmaticId, color]) => ({
+      token: tokenPragmaticId,
+      foreground: color,
+    }));
   }
 }
 
 /* Sequential Theme */
-type SequentialColorPalette = TokenizeColor[];
+export type SequentialColorPalette = TokenizeColor[];
 
 const LightOceanColors: SequentialColorPalette = [
   "a4bf8d",
@@ -90,8 +120,6 @@ const OneLightUI: SequentialColorPalette = [
 const GitHubLight: SequentialColorPalette = [
   "A71D5D",
   "0086B3",
-  "a71d5d",
-  "0086b3",
   "df5000",
   "795da3",
   "0086b3",
@@ -103,7 +131,7 @@ const GitHubLight: SequentialColorPalette = [
   "63a35c",
 ];
 
-type SequentialPaletteId = string;
+export type SequentialPaletteId = string;
 
 const SequentialColorPalettes = new Map<
   SequentialPaletteId,
@@ -124,6 +152,8 @@ export class SequentialThemeProvider extends TokenizeThemeProvider {
   colorPalette: SequentialColorPalette;
   colorPaletteId: SequentialPaletteId;
 
+  currentColorCounter: number;
+
   constructor(
     tokenPragmaticIds: TokenPragmaticId[],
     colorPaletteId: SequentialPaletteId
@@ -131,6 +161,7 @@ export class SequentialThemeProvider extends TokenizeThemeProvider {
     super();
     this.colorPaletteId = colorPaletteId;
     this.colorPalette = [];
+    this.currentColorCounter = 0;
     const colorPalette = getSequentialColorPalette(colorPaletteId);
     if (colorPalette !== undefined) {
       this.colorPalette = colorPalette;
@@ -143,12 +174,27 @@ export class SequentialThemeProvider extends TokenizeThemeProvider {
   }
 
   private attributeSequentialColors(tokenPragmaticIds: TokenPragmaticId[]) {
-    tokenPragmaticIds.forEach((tokenPragmaticId, index) => {
+    tokenPragmaticIds.forEach((tokenPragmaticId) => {
       this.colorsAssigned.set(
         tokenPragmaticId,
-        this.colorPalette[index % this.colorPalette.length]
+        this.colorPalette[this.currentColorCounter % this.colorPalette.length]
       );
+      this.currentColorCounter =
+        (this.currentColorCounter + 1) % this.colorPalette.length;
     });
+  }
+
+  public changeColorPalette(newPaletteId: SequentialPaletteId) {
+    this.colorPaletteId = newPaletteId;
+    const tokenPragmaticIds = [...this.colorsAssigned.keys()];
+    this.colorsAssigned = new Map();
+    this.attributeSequentialColors(tokenPragmaticIds);
+  }
+
+  public updateTokens(newTokens: TokenPragmaticId[]) {
+    this.colorsAssigned = new Map();
+    this.currentColorCounter = 0;
+    this.attributeSequentialColors(newTokens);
   }
 
   public serialize(): { colorsAssigned: string; colorPaletteId: string } {
@@ -158,59 +204,77 @@ export class SequentialThemeProvider extends TokenizeThemeProvider {
   }
 }
 
-const INTERNAL_DEFAULT_COLOR = "000000";
-
 export class CustomThemeProvider extends TokenizeThemeProvider {
   /* Attribute custom colors to tokens. */
-
-  categories: Map<string, Map<TokenPragmaticId, TokenizeColor>> | undefined;
+  sequentialFallback: SequentialThemeProvider;
+  tokenPragmaticIds: TokenPragmaticId[];
 
   constructor(
     tokenPragmaticIds: TokenPragmaticId[],
-    previousTheme?: CustomThemeProvider, // if provided inherits colors from previous theme
-    sequentialColorPaletteIdRemainingTokens?: string,
-    // ...if provided, used as default for not set tokens
-    defaultColor?: TokenizeColor
-    // ...used as a last resource only if sequential palette not provided
+    sequentialColorPaletteIdRemainingTokens: string // used as default for unset tokens
   ) {
     super();
-    if (previousTheme) {
-      this.colorsAssigned = previousTheme.colorsAssigned;
 
-      this.categories = previousTheme.categories;
-      // token garbage collector. delete old tokens if not in current tokens.
-      // we can't keep everything forever.
-      const garbage = new Set(this.colorsAssigned.keys());
-
-      for (const notGarbage of tokenPragmaticIds) {
-        garbage.delete(notGarbage);
-      }
-
-      for (const trashToken of garbage) {
-        this.colorsAssigned.delete(trashToken);
-      }
-    } else {
-      this.categories = new Map();
-    }
+    this.tokenPragmaticIds = tokenPragmaticIds;
 
     // Default behavior if no custom color set
-    const nonAttributedTokens = tokenPragmaticIds.filter(
-      (tokenPragmaticId) => !(tokenPragmaticId in this.colorsAssigned)
+    const sequentialTheme = new SequentialThemeProvider(
+      tokenPragmaticIds,
+      sequentialColorPaletteIdRemainingTokens
     );
-    if (sequentialColorPaletteIdRemainingTokens) {
-      const sequentialTheme = new SequentialThemeProvider(
-        nonAttributedTokens,
-        sequentialColorPaletteIdRemainingTokens
-      );
-      this.colorsAssigned = { ...this.colorsAssigned, ...sequentialTheme };
-    } else {
-      nonAttributedTokens.forEach((tokenPragmaticId) => {
-        this.colorsAssigned.set(
-          tokenPragmaticId,
-          defaultColor || INTERNAL_DEFAULT_COLOR
-        );
-      });
-    }
+    this.sequentialFallback = sequentialTheme;
+  }
+
+  public buildRules(): editor.ITokenThemeRule[] {
+    const assignedColorsRules = super.buildRules();
+
+    const sequentialFallbackRules = [
+      ...this.sequentialFallback.colorsAssigned.entries(),
+    ]
+      .filter(
+        ([tokenPragmaticId, _]) => !this.colorsAssigned.has(tokenPragmaticId)
+      )
+      .map(([tokenPragmaticId, color]) => ({
+        token: tokenPragmaticId,
+        foreground: color,
+      }));
+
+    return assignedColorsRules.concat(sequentialFallbackRules);
+  }
+
+  public getTokenColor(
+    tokenPragmaticId: TokenPragmaticId
+  ): TokenizeColor | undefined {
+    return (
+      this.colorsAssigned.get(tokenPragmaticId) ||
+      this.sequentialFallback.getTokenColor(tokenPragmaticId)
+    );
+  }
+
+  public get nonCategorizedTokens() {
+    return [...this.sequentialFallback.colorsAssigned.keys()];
+  }
+
+  public updateTokens(newTokens: TokenPragmaticId[]) {
+    super.updateTokens(newTokens);
+    this.sequentialFallback.updateTokens(newTokens);
+  }
+
+  public changeColorPalette(newPaletteId: SequentialPaletteId) {
+    // in this class, changes palette of sequential fallback only
+    this.sequentialFallback.changeColorPalette(newPaletteId);
+  }
+
+  public serialize(): { colorsAssigned: string; colorPaletteId: string } {
+    const baseSerialize = super.serialize();
+    const sequentialSerialize = {
+      colorPaletteId: this.sequentialFallback.colorPaletteId,
+    };
+    return { ...baseSerialize, ...sequentialSerialize };
+  }
+
+  public resetTheme() {
+    this.colorsAssigned = new Map();
   }
 
   public customizeColor(
@@ -223,69 +287,49 @@ export class CustomThemeProvider extends TokenizeThemeProvider {
 
 /* Utilities */
 
-// hook to automatically save serialized theme to local storage
-export const useLocalStorageThemeProvider = (
-  initialValue: TokenizeThemeProvider | undefined = undefined
-): [
-  TokenizeThemeProvider | undefined,
-  Dispatch<SetStateAction<TokenizeThemeProvider | undefined>>
-] => {
-  const [
-    colorsAssignedSerialized,
-    setColorsAssignedSerialized,
-  ] = useLocalStorage<string | undefined>("colorAssignedSerialized", undefined);
-
-  /* Used to recover from sequential */
-  const [sequentialPaletteId, setSequentialPaletteId] = useLocalStorage<
+// hook to automatically save serialized custom theme to local storage
+// sequential theme provider doesn't need one because it can be recreated
+// only with palette Id and grammar response.
+export const useLocalStorageCustomTheme = (
+  initialFallbackPaletteId: SequentialPaletteId
+): [CustomThemeProvider, Dispatch<SetStateAction<CustomThemeProvider>>] => {
+  const [fallbackPaletteId, setFallbackPaletteId] = useLocalStorage<
     string | undefined
-  >("sequentialThemeId", undefined);
+  >("sequentialThemeId", initialFallbackPaletteId);
 
-  const [themeProvider, setThemeProvider] = useState<
-    TokenizeThemeProvider | undefined
-  >(initialValue);
+  const [customThemeProvider, setCustomThemeProvider] = useState<
+    CustomThemeProvider
+  >(new CustomThemeProvider([], fallbackPaletteId || initialFallbackPaletteId));
 
-  useEffect(() => {
-    if (themeProvider === undefined && colorsAssignedSerialized !== undefined) {
-      if (sequentialPaletteId !== undefined) {
-        if (getSequentialColorPalette(sequentialPaletteId) === undefined) {
-          setSequentialPaletteId(undefined);
-          console.warn("Invalid sequential theme id. Unsetting...");
-          return () => {};
-        }
-        const newThemeProvider = new SequentialThemeProvider(
-          [],
-          sequentialPaletteId
-        );
-        newThemeProvider.deserialize(colorsAssignedSerialized);
-        setThemeProvider(newThemeProvider);
-      } else {
-        const newThemeProvider = new CustomThemeProvider([]);
-        newThemeProvider.deserialize(colorsAssignedSerialized);
-        setThemeProvider(newThemeProvider);
-      }
+  const [
+    colorsAssignedSerializedCustom,
+    setColorsAssignedSerializedCustom,
+  ] = useLocalStorage<string | undefined>(
+    "colorAssignedSequentialSerialized",
+    undefined
+  );
+
+  useEffectOnce(() => {
+    if (colorsAssignedSerializedCustom !== undefined) {
+      customThemeProvider.deserialize(colorsAssignedSerializedCustom);
     }
-  }, [
-    themeProvider,
-    colorsAssignedSerialized,
-    sequentialPaletteId,
-    setSequentialPaletteId,
-  ]);
 
-  useEffect(() => {
-    return () => {
-      if (themeProvider !== undefined) {
-        const serialized = themeProvider.serialize();
-        setColorsAssignedSerialized(serialized.colorsAssigned);
-        if (serialized.colorPaletteId) {
-          setSequentialPaletteId(serialized.colorPaletteId);
-        } else {
-          setSequentialPaletteId(undefined);
-        }
+    const handleBeforeUnload = () => {
+      const serialized = customThemeProvider.serialize();
+      setColorsAssignedSerializedCustom(serialized.colorsAssigned);
+      if (serialized.colorPaletteId) {
+        setFallbackPaletteId(serialized.colorPaletteId);
+      } else {
+        console.error("Undefined custom theme color palette id.");
       }
     };
-  }, [themeProvider, setSequentialPaletteId, setColorsAssignedSerialized]);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  });
 
-  return [themeProvider, setThemeProvider];
+  return [customThemeProvider, setCustomThemeProvider];
 };
 
 export const getTokenPragmaticDescription = (

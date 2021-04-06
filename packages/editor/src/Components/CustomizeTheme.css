@@ -35,3 +35,22 @@ ul {
   flex-direction: row;
   padding-top: 12px;
 }
+
+.popver {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.cover {
+  position: fixed;
+  top: "0px";
+  right: "0px";
+  bottom: "0px";
+  left: "0px";
+}
+
+.token-li {
+  cursor: pointer;
+}

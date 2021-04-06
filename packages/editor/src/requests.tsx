@@ -28,7 +28,7 @@ export const uploadGrammarFromFile = async (
 export const uploadGrammar = async (
   grammar: string,
   rootNode: string
-): Promise<GrammarRequestResult> => {
+): Promise<GrammarRequestResult | undefined> => {
   const grammarResponse = await axios
     .post(
       requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR,
@@ -39,7 +39,10 @@ export const uploadGrammar = async (
       { withCredentials: true }
     )
     .then((response) => response.data)
-    .catch(console.error);
+    .catch((reason) => {
+      console.error(reason);
+      return undefined;
+    });
 
   return grammarResponse;
 };

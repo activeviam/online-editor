@@ -1,112 +1,95 @@
-import React from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
 
+import { CustomizeThemeSubmenu } from "./CustomizeThemeSubmenu";
+import { CustomTokens } from "./CustomTokens";
+import { SequentialTokens } from "./SequentialTokens";
 import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from "@material-ui/core";
-
-import {
-  getSequentialPaletteIds,
+  CustomThemeProvider,
+  SequentialThemeProvider,
+  ThemeMode,
   TokenizeThemeProvider,
 } from "../TokenizeTheme";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 
-import "./Menu.css";
-
 import "./CustomizeTheme.css";
 
 interface IProps {
+  currentThemeProvider: MutableRefObject<TokenizeThemeProvider | undefined>;
+  customThemeProvider: CustomThemeProvider;
   grammarResponse: GrammarRequestResult | undefined;
   sequentialPaletteId: string | undefined;
-  themeMode: string | undefined;
-  themeProvider: TokenizeThemeProvider | undefined;
+  sequentialThemeProvider: SequentialThemeProvider | undefined;
+  themeMode: ThemeMode | undefined;
   setSequentialPaletteId: (id: string) => void;
-  setThemeMode: (mode: string) => void;
-  setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
+  setThemeMode: (mode: ThemeMode | undefined) => void;
+  setSequentialThemeProvider: (
+    themeProvider: SequentialThemeProvider | undefined
+  ) => void;
+  setCustomThemeProvider: (themeProvider: CustomThemeProvider) => void;
 }
 
 export const GrammarInfo = (props: IProps) => {
   // theme can be sequential or custom.
-  const sequentialPaletteIds = getSequentialPaletteIds();
-  const minSelectorWidth = 220;
+
+  const customThemeProviderRef = useRef<CustomThemeProvider | null>(null);
+
+  useEffect(() => {
+    if (props.customThemeProvider !== undefined) {
+      customThemeProviderRef.current = props.customThemeProvider;
+    }
+  }, [props.customThemeProvider]);
+
+  const {
+    grammarResponse,
+    setSequentialThemeProvider,
+    setCustomThemeProvider,
+    sequentialPaletteId,
+  } = props;
+
+  useEffect(() => {
+    if (grammarResponse !== undefined) {
+      const tokenPragmaticIds = grammarResponse.tokens;
+      if (sequentialPaletteId !== undefined) {
+        setSequentialThemeProvider(
+          new SequentialThemeProvider(tokenPragmaticIds, sequentialPaletteId)
+        );
+        if (customThemeProviderRef.current !== null) {
+          customThemeProviderRef.current.updateTokens(tokenPragmaticIds);
+        } else {
+          console.error("No Custom Theme Provider");
+        }
+      } else {
+        throw Error("Sequential palette id not set.");
+      }
+    }
+  }, [
+    grammarResponse,
+    sequentialPaletteId,
+    setSequentialThemeProvider,
+    setCustomThemeProvider,
+  ]);
+
+  const handleOnChangePalette = () => {};
+
+  const handleOnClickReset = () => {
+    props.customThemeProvider.resetTheme();
+    // force rerender and give visual feedback to user
+    props.setThemeMode(ThemeMode.Sequential);
+  };
 
   return (
     <div className="grammar-info-pane">
-      <div className="customize-theme-submenu">
-        <div className="menu-left">
-          <FormControl style={{ minWidth: minSelectorWidth }}>
-            <InputLabel color="secondary">theme mode</InputLabel>
-            <Select
-              value={props.themeMode}
-              onChange={(event) => {
-                props.setThemeMode(event.target.value as string);
-              }}
-              color="secondary"
-            >
-              <MenuItem
-                value="sequential"
-                style={{ minWidth: minSelectorWidth }}
-              >
-                sequential
-              </MenuItem>
-              <MenuItem value="custom" style={{ minWidth: minSelectorWidth }}>
-                custom
-              </MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-        <div className="menu-right">
-          {props.themeMode === "sequential" && (
-            <FormControl style={{ minWidth: minSelectorWidth }}>
-              <InputLabel color="secondary">
-                sequential color palette
-              </InputLabel>
-              <Select
-                value={props.sequentialPaletteId}
-                onChange={(event) => {
-                  props.setSequentialPaletteId(event.target.value as string);
-                }}
-                color="secondary"
-              >
-                {sequentialPaletteIds.map((paletteId, index) => (
-                  <MenuItem
-                    value={paletteId}
-                    style={{ minWidth: minSelectorWidth }}
-                    key={index}
-                  >
-                    {paletteId}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-        </div>
-      </div>
+      <CustomizeThemeSubmenu
+        {...props}
+        onClickReset={handleOnClickReset}
+        onChangePalette={handleOnChangePalette}
+      />
       <div style={{ height: "100%" }}>
-        <ul>
-          {props.grammarResponse
-            ? props.grammarResponse.tokens.map(
-                (token: string, index: number) => (
-                  <div className="token-info" key={index}>
-                    <li>
-                      <Typography className="token-name">{`${token} `}</Typography>
-                      <div
-                        style={{
-                          background:
-                            "#" + props.themeProvider?.getTokenColor(token),
-                        }}
-                        className="rectangle"
-                      />
-                    </li>
-                  </div>
-                )
-              )
-            : ""}
-        </ul>
+        {props.themeMode === ThemeMode.Sequential && (
+          <SequentialTokens {...props} />
+        )}
+        {props.themeMode === ThemeMode.Custom && <CustomTokens {...props} />}
       </div>
     </div>
   );

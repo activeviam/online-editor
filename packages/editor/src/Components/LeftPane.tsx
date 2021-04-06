@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MutableRefObject } from "react";
 
 /*
 React component containing the grammar editor and buttons.
@@ -6,7 +6,12 @@ React component containing the grammar editor and buttons.
 
 import { TabPanel } from "../Misc/TabPanel";
 import { GrammarTools } from "./GrammarTools";
-import { TokenizeThemeProvider } from "../TokenizeTheme";
+import {
+  CustomThemeProvider,
+  SequentialThemeProvider,
+  ThemeMode,
+  TokenizeThemeProvider,
+} from "../TokenizeTheme";
 import { TokenizeTools } from "./TokenizeTools";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
@@ -18,11 +23,12 @@ interface IProps {
   isGrammarCompiled: boolean | undefined;
   sequentialPaletteId: string | undefined;
   tabValue: number;
-  themeMode: string | undefined;
-  themeProvider: TokenizeThemeProvider | undefined;
+  customThemeProvider: CustomThemeProvider;
+  sequentialThemeProvider: SequentialThemeProvider | undefined;
+  themeMode: ThemeMode | undefined;
+  currentThemeProvider: MutableRefObject<TokenizeThemeProvider | undefined>;
   setGrammarResponse: (response: GrammarRequestResult) => void;
   setIsGrammarCompiled: (isIt: boolean) => void;
-  setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
 }
 
 export const LeftPane = (props: IProps) => {

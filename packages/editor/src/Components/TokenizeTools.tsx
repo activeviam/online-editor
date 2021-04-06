@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 /*
 Component containing the user defined language editor and its menu.
@@ -9,15 +9,22 @@ import { useLocalStorage } from "react-use";
 import { parseCustomLanguage } from "../requests";
 import { TokenizeMenu } from "./TokenizeMenu";
 import { TokenizeEditor } from "./TokenizeEditor";
-import { TokenizeThemeProvider } from "../TokenizeTheme";
+import {
+  CustomThemeProvider,
+  SequentialThemeProvider,
+  ThemeMode,
+} from "../TokenizeTheme";
 
+import { GrammarRequestResult } from "../Types/GrammarTypes";
 import { ParsedCustomLanguage } from "../Types/TokenizeTypes";
 
 import "./Panes.css";
 
 interface IProps {
-  themeProvider: TokenizeThemeProvider | undefined;
-  setThemeProvider: (themeProvider: TokenizeThemeProvider | undefined) => void;
+  customThemeProvider: CustomThemeProvider;
+  sequentialThemeProvider: SequentialThemeProvider | undefined;
+  themeMode: ThemeMode | undefined;
+  grammarResponse: GrammarRequestResult | undefined;
 }
 
 export const TokenizeTools = (props: IProps) => {
@@ -33,6 +40,10 @@ export const TokenizeTools = (props: IProps) => {
     "shouldAutoTokenize",
     false
   );
+
+  // used to avoid sending an useless request after changing tabs
+  // when remounting this component.
+  const tokenizeFirstRun = useRef(true);
 
   const handleCustomLanguageChange = (
     changedCustomLanguage: string | undefined
@@ -53,6 +64,11 @@ export const TokenizeTools = (props: IProps) => {
   };
 
   useEffect(() => {
+    if (tokenizeFirstRun.current !== false) {
+      tokenizeFirstRun.current = false;
+      return () => {};
+    }
+
     if (customLanguage !== undefined && shouldAutoTokenize) {
       const fetchTokenized = async () => {
         const tokenized = await parseCustomLanguage(customLanguage);

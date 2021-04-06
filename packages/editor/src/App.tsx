@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 
+import { Tab, Tabs, Typography, AppBar } from "@material-ui/core";
 import { useLocalStorage } from "react-use";
 
 import { LeftPane } from "./Components/LeftPane";
 import { RightPane } from "./Components/RightPane";
 import {
   getSequentialPaletteIds,
-  useLocalStorageThemeProvider,
+  SequentialThemeProvider,
+  ThemeMode,
+  TokenizeThemeProvider,
+  useLocalStorageCustomTheme,
 } from "./TokenizeTheme";
 
 import { GrammarRequestResult } from "./Types/GrammarTypes";
 
 import "./App.css";
-import AppBar from "@material-ui/core/AppBar";
-import { Tab, Tabs, Typography } from "@material-ui/core";
 
 const App = () => {
   const [grammarResponse, setGrammarResponse] = useLocalStorage<
@@ -25,12 +27,29 @@ const App = () => {
     false
   );
 
-  const [themeMode, setThemeMode] = useLocalStorage("themeMode", "sequential");
-  const [themeProvider, setThemeProvider] = useLocalStorageThemeProvider();
+  const [themeMode, setThemeMode] = useLocalStorage(
+    "themeMode",
+    ThemeMode.Sequential
+  );
   const sequentialPaletteIds = getSequentialPaletteIds();
   const [sequentialPaletteId, setSequentialPaletteId] = useLocalStorage(
     "sequentialPaletteId",
     sequentialPaletteIds[0]
+  );
+
+  const [sequentialThemeProvider, setSequentialThemeProvider] = useState<
+    SequentialThemeProvider
+  >();
+
+  const [
+    customThemeProvider,
+    setCustomThemeProvider,
+  ] = useLocalStorageCustomTheme(
+    sequentialPaletteId || sequentialPaletteIds[0]
+  );
+
+  const currentThemeProvider = useRef<TokenizeThemeProvider | undefined>(
+    themeMode === "sequential" ? sequentialThemeProvider : customThemeProvider
   );
 
   const [tabValue, setTabValue] = useState(0);
@@ -61,35 +80,39 @@ const App = () => {
           </Typography>
           <div className="application-details-divider" />
           <Typography variant="h1" style={{ fontSize: 32 }}>
-            ANTLR Typescript visualization toolkit
+            ANTLR TypeScript visualization toolkit
           </Typography>
         </div>
       </div>
       <div className="split-screen">
         <div className="left-pane">
           <LeftPane
+            customThemeProvider={customThemeProvider}
             grammarResponse={grammarResponse}
             setGrammarResponse={setGrammarResponse}
             isGrammarCompiled={isGrammarCompiled}
+            sequentialThemeProvider={sequentialThemeProvider}
             sequentialPaletteId={sequentialPaletteId}
             tabValue={tabValue}
             themeMode={themeMode}
-            themeProvider={themeProvider}
+            currentThemeProvider={currentThemeProvider}
             setIsGrammarCompiled={setIsGrammarCompiled}
-            setThemeProvider={setThemeProvider}
           ></LeftPane>
         </div>
         <div className="right-pane">
           <RightPane
+            customThemeProvider={customThemeProvider}
             grammarResponse={grammarResponse}
             isGrammarCompiled={isGrammarCompiled}
             sequentialPaletteId={sequentialPaletteId}
+            sequentialThemeProvider={sequentialThemeProvider}
             tabValue={tabValue}
             themeMode={themeMode}
-            themeProvider={themeProvider}
+            currentThemeProvider={currentThemeProvider}
             setSequentialPaletteId={setSequentialPaletteId}
             setThemeMode={setThemeMode}
-            setThemeProvider={setThemeProvider}
+            setSequentialThemeProvider={setSequentialThemeProvider}
+            setCustomThemeProvider={setCustomThemeProvider}
           ></RightPane>
         </div>
       </div>
