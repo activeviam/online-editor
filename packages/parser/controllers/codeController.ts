@@ -35,7 +35,8 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   const getParseTree = parseTreeModule.default;
   const parseTree = getParseTree(codeString);
 
-  console.log("parseTree:", parseTree.toStringTree(parser.ruleNames));
+  const orgChart = generateChart(parseTree, parser);
+  console.log(orgChart);
 
   // Tokens object
   const tokens = result.map((token: any) => ({
@@ -51,5 +52,30 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
     ruleNames: ruleNames,
     code: codeString,
     tokens: tokens,
+    orgChart: orgChart,
   });
 };
+
+const generateChart = (parseTree: any, parser: any): ChartNode => {
+  const stringTree: string = parseTree.toStringTree(parser);
+  const isTerminalNode = parseTree.children === undefined;
+  if (isTerminalNode) {
+    return new ChartNode(parseTree.text);
+  } else {
+    const name = stringTree.split(" ")[0].slice(1);
+    const children: ChartNode[] = [];
+    parseTree.children.forEach((child: any) =>
+      children.push(generateChart(child, parser)),
+    );
+    return new ChartNode(name, children);
+  }
+};
+
+class ChartNode {
+  name: string;
+  children: ChartNode[];
+  constructor(name: string, children: ChartNode[] = []) {
+    this.name = name;
+    this.children = children;
+  }
+}
