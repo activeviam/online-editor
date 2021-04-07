@@ -11,7 +11,7 @@ interface IProps {
 
 export const SequentialTokens = (props: IProps) => {
   return (
-    <ul>
+    <ul className="token-list">
       {props.sequentialThemeProvider !== undefined &&
         [...props.sequentialThemeProvider.colorsAssigned].map(
           ([tokenPragmaticId, _], index) => (

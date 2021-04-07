@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 /*
 Component containing the user defined language editor and its menu.
@@ -22,9 +22,11 @@ import "./Panes.css";
 
 interface IProps {
   customThemeProvider: CustomThemeProvider;
+  parsedCustomLanguage: ParsedCustomLanguage | undefined;
   sequentialThemeProvider: SequentialThemeProvider | undefined;
   themeMode: ThemeMode | undefined;
   grammarResponse: GrammarRequestResult | undefined;
+  setParsedCustomLanguage: (parsed: ParsedCustomLanguage) => void;
 }
 
 export const TokenizeTools = (props: IProps) => {
@@ -32,9 +34,6 @@ export const TokenizeTools = (props: IProps) => {
     "customLanguage",
     "hello bob"
   );
-  const [parsedCustomLanguage, setParsedCustomLanguage] = useState<
-    ParsedCustomLanguage | undefined
-  >();
 
   const [shouldAutoTokenize, setShouldAutoTokenize] = useLocalStorage<boolean>(
     "shouldAutoTokenize",
@@ -60,9 +59,10 @@ export const TokenizeTools = (props: IProps) => {
       return;
     }
     const parsed = await parseCustomLanguage(customLanguage);
-    setParsedCustomLanguage(parsed);
+    props.setParsedCustomLanguage(parsed);
   };
 
+  const { setParsedCustomLanguage } = props;
   useEffect(() => {
     if (tokenizeFirstRun.current !== false) {
       tokenizeFirstRun.current = false;
@@ -76,7 +76,7 @@ export const TokenizeTools = (props: IProps) => {
       };
       fetchTokenized();
     }
-  }, [customLanguage, shouldAutoTokenize]);
+  }, [customLanguage, shouldAutoTokenize, setParsedCustomLanguage]);
 
   return (
     <div className="whole-pane">
@@ -92,7 +92,6 @@ export const TokenizeTools = (props: IProps) => {
           {...props}
           onChange={handleCustomLanguageChange}
           value={customLanguage || ""}
-          parsedCustomLanguage={parsedCustomLanguage}
         />
       </div>
     </div>

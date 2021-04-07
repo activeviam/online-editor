@@ -32,3 +32,12 @@
 .invisible-input {
   display: none;
 }
+
+.fullscreen-enabled {
+  background: white;
+}
+
+div.fullscreen {
+  height: 100%;
+  width: 100%;
+}

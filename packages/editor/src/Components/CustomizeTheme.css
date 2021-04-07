@@ -11,15 +11,20 @@
   max-height: 100%;
 }
 
-ul {
+/* TODO: apply this to custom token list */
+ul.token-list {
   padding: 12px;
-  width: 30%;
+  height: 100%;
+  width: 50%;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  place-items: center;
 }
 
 .token-info {
   margin: 10px;
-  width: 100%;
+  width: 60%;
   text-align: center;
   background-color: lightyellow;
   border: 1px solid black;
@@ -53,4 +58,15 @@ ul {
 
 .token-li {
   cursor: pointer;
+}
+
+.token-categories {
+  width: 50%;
+  height: 100%;
+}
+
+.customize-theme-pane {
+  height: 100%;
+  width: 100%;
+  display: flex;
 }
