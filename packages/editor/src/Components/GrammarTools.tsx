@@ -1,4 +1,4 @@
-import React, { MutableRefObject } from "react";
+import React from "react";
 
 /*
 Component that contains the grammar editor and its menu.
@@ -11,7 +11,7 @@ import { helloGrammar } from "../GrammarExamples/HelloGrammar";
 import { uploadGrammar, uploadGrammarFromFile } from "../requests";
 import { GrammarEditor } from "./GrammarEditor";
 import { GrammarMenu } from "./GrammarMenu";
-import { ThemeMode, TokenizeThemeProvider } from "../TokenizeTheme";
+import { ThemeMode } from "../TokenizeTheme";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 
@@ -22,7 +22,6 @@ interface IProps {
   isGrammarCompiled: boolean | undefined;
   sequentialPaletteId: string | undefined;
   themeMode: ThemeMode | undefined;
-  currentThemeProvider: MutableRefObject<TokenizeThemeProvider | undefined>;
   setIsGrammarCompiled: (isIt: boolean) => void;
   setGrammarResponse: (response: GrammarRequestResult) => void;
 }

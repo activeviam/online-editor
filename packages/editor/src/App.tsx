@@ -9,11 +9,11 @@ import {
   getSequentialPaletteIds,
   SequentialThemeProvider,
   ThemeMode,
-  TokenizeThemeProvider,
   useLocalStorageCustomTheme,
 } from "./TokenizeTheme";
 
 import { GrammarRequestResult } from "./Types/GrammarTypes";
+import { ParsedCustomLanguage } from "./Types/TokenizeTypes";
 
 import "./App.css";
 
@@ -21,6 +21,10 @@ const App = () => {
   const [grammarResponse, setGrammarResponse] = useLocalStorage<
     GrammarRequestResult
   >("grammarRequestResult");
+
+  const [parsedCustomLanguage, setParsedCustomLanguage] = useLocalStorage<
+    ParsedCustomLanguage | undefined
+  >("parsedCustomLanguage");
 
   const [isGrammarCompiled, setIsGrammarCompiled] = useLocalStorage<boolean>(
     "isGrammarCompiled",
@@ -46,10 +50,6 @@ const App = () => {
     setCustomThemeProvider,
   ] = useLocalStorageCustomTheme(
     sequentialPaletteId || sequentialPaletteIds[0]
-  );
-
-  const currentThemeProvider = useRef<TokenizeThemeProvider | undefined>(
-    themeMode === "sequential" ? sequentialThemeProvider : customThemeProvider
   );
 
   const [tabValue, setTabValue] = useState(0);
@@ -91,11 +91,12 @@ const App = () => {
             grammarResponse={grammarResponse}
             setGrammarResponse={setGrammarResponse}
             isGrammarCompiled={isGrammarCompiled}
+            parsedCustomLanguage={parsedCustomLanguage}
+            setParsedCustomLanguage={setParsedCustomLanguage}
             sequentialThemeProvider={sequentialThemeProvider}
             sequentialPaletteId={sequentialPaletteId}
             tabValue={tabValue}
             themeMode={themeMode}
-            currentThemeProvider={currentThemeProvider}
             setIsGrammarCompiled={setIsGrammarCompiled}
           ></LeftPane>
         </div>
@@ -104,12 +105,13 @@ const App = () => {
             customThemeProvider={customThemeProvider}
             grammarResponse={grammarResponse}
             isGrammarCompiled={isGrammarCompiled}
+            parsedCustomLanguage={parsedCustomLanguage}
             sequentialPaletteId={sequentialPaletteId}
             sequentialThemeProvider={sequentialThemeProvider}
             tabValue={tabValue}
             themeMode={themeMode}
-            currentThemeProvider={currentThemeProvider}
             setSequentialPaletteId={setSequentialPaletteId}
+            setParsedCustomLanguage={setParsedCustomLanguage}
             setThemeMode={setThemeMode}
             setSequentialThemeProvider={setSequentialThemeProvider}
             setCustomThemeProvider={setCustomThemeProvider}

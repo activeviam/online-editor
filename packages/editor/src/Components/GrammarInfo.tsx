@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { CustomizeThemeSubmenu } from "./CustomizeThemeSubmenu";
 import { CustomTokens } from "./CustomTokens";
@@ -7,7 +7,6 @@ import {
   CustomThemeProvider,
   SequentialThemeProvider,
   ThemeMode,
-  TokenizeThemeProvider,
 } from "../TokenizeTheme";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
@@ -15,7 +14,6 @@ import { GrammarRequestResult } from "../Types/GrammarTypes";
 import "./CustomizeTheme.css";
 
 interface IProps {
-  currentThemeProvider: MutableRefObject<TokenizeThemeProvider | undefined>;
   customThemeProvider: CustomThemeProvider;
   grammarResponse: GrammarRequestResult | undefined;
   sequentialPaletteId: string | undefined;
@@ -85,7 +83,7 @@ export const GrammarInfo = (props: IProps) => {
         onClickReset={handleOnClickReset}
         onChangePalette={handleOnChangePalette}
       />
-      <div style={{ height: "100%" }}>
+      <div className="customize-theme-pane">
         {props.themeMode === ThemeMode.Sequential && (
           <SequentialTokens {...props} />
         )}

@@ -1,4 +1,4 @@
-import React, { MutableRefObject } from "react";
+import React from "react";
 
 /*
 React component containing the grammar editor and buttons.
@@ -10,11 +10,11 @@ import {
   CustomThemeProvider,
   SequentialThemeProvider,
   ThemeMode,
-  TokenizeThemeProvider,
 } from "../TokenizeTheme";
 import { TokenizeTools } from "./TokenizeTools";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
+import { ParsedCustomLanguage } from "../Types/TokenizeTypes";
 
 import "./Panes.css";
 
@@ -22,11 +22,12 @@ interface IProps {
   grammarResponse: GrammarRequestResult | undefined;
   isGrammarCompiled: boolean | undefined;
   sequentialPaletteId: string | undefined;
+  parsedCustomLanguage: ParsedCustomLanguage | undefined;
   tabValue: number;
   customThemeProvider: CustomThemeProvider;
   sequentialThemeProvider: SequentialThemeProvider | undefined;
   themeMode: ThemeMode | undefined;
-  currentThemeProvider: MutableRefObject<TokenizeThemeProvider | undefined>;
+  setParsedCustomLanguage: (parsed: ParsedCustomLanguage) => void;
   setGrammarResponse: (response: GrammarRequestResult) => void;
   setIsGrammarCompiled: (isIt: boolean) => void;
 }

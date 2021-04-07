@@ -11,4 +11,5 @@ export interface ParsedCustomLanguage {
   ruleNames: string[];
   code: string;
   tokens: TokenInfo[];
+  orgChart: any;
 }
