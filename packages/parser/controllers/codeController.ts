@@ -22,6 +22,7 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   const getLexer = lexerModule.default;
   const lexerClass = grammarLexer[`${grammar.name}Lexer`];
   const ruleNames = lexerClass.ruleNames;
+  const literals = lexerClass._LITERAL_NAMES;
   const lexer = getLexer(codeString);
 
   // Generating the tokens
@@ -34,8 +35,8 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
 
   const getParseTree = parseTreeModule.default;
   const parseTree = getParseTree(codeString);
-
-  console.log("parseTree:", parseTree.toStringTree(parser.ruleNames));
+  const orgChart = generateChart(parseTree, parser, ruleNames, literals);
+  console.log(orgChart);
 
   // Tokens object
   const tokens = result.map((token: any) => ({
@@ -51,5 +52,49 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
     ruleNames: ruleNames,
     code: codeString,
     tokens: tokens,
+    orgChart: orgChart,
   });
 };
+
+const generateChart = (
+  parseTree: any,
+  parser: any,
+  ruleNames: any,
+  literals: any,
+): ChartNode => {
+  const stringTree: string = parseTree.toStringTree(parser);
+  const isTerminalNode = parseTree.children === undefined;
+
+  if (isTerminalNode) {
+    let name: string = ruleNames[parseTree.symbol.type - 1];
+    if (name.startsWith("T__")) {
+      const ind = parseInt(name.substring(3));
+      name = literals[ind + 1];
+    }
+    return new ChartNode(name, undefined, {
+      content: parseTree.text,
+    });
+  } else {
+    const name = stringTree.split(" ")[0].slice(1);
+    const children: ChartNode[] = [];
+    parseTree.children.forEach((child: any) =>
+      children.push(generateChart(child, parser, ruleNames, literals)),
+    );
+    return new ChartNode(name, children);
+  }
+};
+
+class ChartNode {
+  name: string;
+  attributes: Record<string, string> | undefined;
+  children: ChartNode[] | undefined;
+  constructor(
+    name: string,
+    children: ChartNode[] | undefined = undefined,
+    attributes: Record<string, string> | undefined = undefined,
+  ) {
+    this.name = name;
+    this.attributes = attributes;
+    this.children = children;
+  }
+}
