@@ -71,7 +71,7 @@ const generateChart = (
       const ind = parseInt(name.substring(3));
       name = literals[ind + 1];
     }
-    return new ChartNode(name, [], {
+    return new ChartNode(name, undefined, {
       content: parseTree.text,
     });
   } else {
@@ -86,12 +86,12 @@ const generateChart = (
 
 class ChartNode {
   name: string;
-  attributes: Record<string, string>;
-  children: ChartNode[];
+  attributes: Record<string, string> | undefined;
+  children: ChartNode[] | undefined;
   constructor(
     name: string,
-    children: ChartNode[] = [],
-    attributes: Record<string, string> = {},
+    children: ChartNode[] | undefined = undefined,
+    attributes: Record<string, string> | undefined = undefined,
   ) {
     this.name = name;
     this.attributes = attributes;
