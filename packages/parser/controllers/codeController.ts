@@ -22,6 +22,7 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   const getLexer = lexerModule.default;
   const lexerClass = grammarLexer[`${grammar.name}Lexer`];
   const ruleNames = lexerClass.ruleNames;
+  const literals = lexerClass._LITERAL_NAMES;
   const lexer = getLexer(codeString);
 
   // Generating the tokens
@@ -34,8 +35,7 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
 
   const getParseTree = parseTreeModule.default;
   const parseTree = getParseTree(codeString);
-
-  const orgChart = generateChart(parseTree, parser);
+  const orgChart = generateChart(parseTree, parser, ruleNames, literals);
   console.log(orgChart);
 
   // Tokens object
@@ -56,16 +56,29 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   });
 };
 
-const generateChart = (parseTree: any, parser: any): ChartNode => {
+const generateChart = (
+  parseTree: any,
+  parser: any,
+  ruleNames: any,
+  literals: any,
+): ChartNode => {
   const stringTree: string = parseTree.toStringTree(parser);
   const isTerminalNode = parseTree.children === undefined;
+
   if (isTerminalNode) {
-    return new ChartNode(parseTree.text);
+    let name: string = ruleNames[parseTree.symbol.type - 1];
+    if (name.startsWith("T__")) {
+      const ind = parseInt(name.substring(3));
+      name = literals[ind + 1];
+    }
+    return new ChartNode(name, [], {
+      content: parseTree.text,
+    });
   } else {
     const name = stringTree.split(" ")[0].slice(1);
     const children: ChartNode[] = [];
     parseTree.children.forEach((child: any) =>
-      children.push(generateChart(child, parser)),
+      children.push(generateChart(child, parser, ruleNames, literals)),
     );
     return new ChartNode(name, children);
   }
@@ -73,9 +86,15 @@ const generateChart = (parseTree: any, parser: any): ChartNode => {
 
 class ChartNode {
   name: string;
+  attributes: Record<string, string>;
   children: ChartNode[];
-  constructor(name: string, children: ChartNode[] = []) {
+  constructor(
+    name: string,
+    children: ChartNode[] = [],
+    attributes: Record<string, string> = {},
+  ) {
     this.name = name;
+    this.attributes = attributes;
     this.children = children;
   }
 }
