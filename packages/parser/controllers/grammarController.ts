@@ -46,7 +46,6 @@ const getGrammarTokens = async (
     `../grammar/${sessionID}/${grammarName}Lexer.ts`
   );
   const lexerClass = grammarLexer[`${grammarName}Lexer`];
-  console.log(lexerClass.VOCABULARY);
 
   const ruleNames = lexerClass.ruleNames;
   const literals = lexerClass._LITERAL_NAMES;
