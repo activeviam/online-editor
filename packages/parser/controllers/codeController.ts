@@ -36,7 +36,6 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   const getParseTree = parseTreeModule.default;
   const parseTree = getParseTree(codeString);
   const orgChart = generateChart(parseTree, parser, ruleNames, literals);
-  console.log(orgChart);
 
   // Tokens object
   const tokens = result.map((token: any) => ({

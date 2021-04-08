@@ -1,7 +1,7 @@
 export class AntlrError extends Error {
-  errorStack: string[];
-  constructor(message: string, stack: string[]) {
+  errors: string[];
+  constructor(message: string, errorStack: string[]) {
     super(message);
-    this.errorStack = stack;
+    this.errors = errorStack;
   }
 }
