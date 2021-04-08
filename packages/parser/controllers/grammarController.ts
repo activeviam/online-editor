@@ -13,6 +13,7 @@ import {
 dotenv.config();
 
 import { AntlrError } from "../errors/antlrError";
+import { RequestError } from "../errors/requestError";
 
 // Constants
 const ANTLR4TS = process.env.ANTLR4TS || "";
@@ -63,7 +64,7 @@ const runAntlr = (
   filename: string,
   grammarPath: string,
   grammarRoot: string,
-): Promise<boolean> => {
+): Promise<string[]> => {
   return new Promise((resolve, reject) => {
     const directory = path.dirname(grammarPath);
     const grammarName = filename.split(".")[0];
@@ -72,18 +73,28 @@ const runAntlr = (
     const child = spawn(ANTLR4TS, [...ANTLR_FLAGS.split(" "), grammarPath]);
 
     const compilationErrors: string[] = [];
+    const compilationWarnings: string[] = [];
     child.stderr.on("data", (data) => {
-      compilationErrors.push(data.toString());
+      const msg: string = data.toString();
+      const msg_details: string[] = msg.split(":");
+      // by default the second element of msg_details contains the full path to the grammar
+      // Which can be critical. Thus we remove the full path
+      msg_details.splice(1, 1);
+      if (msg_details[0].startsWith("error")) {
+        compilationErrors.push(msg_details.join(":"));
+      } else if (msg_details[0].startsWith("warning")) {
+        compilationWarnings.push(msg_details.join(":"));
+      }
     });
 
     child.on("exit", () => {
       if (compilationErrors.length) {
-        reject(new AntlrError("Error at grammar compiling", compilationErrors));
+        reject(new AntlrError("Compilation failed", compilationErrors));
       } else {
         generateParserFile(grammarName, directory);
         generateLexerFile(grammarName, grammarRoot, directory);
         generateAstTreeFile(grammarName, grammarRoot, directory);
-        resolve(true);
+        resolve(compilationWarnings);
       }
     });
   });
@@ -98,7 +109,7 @@ export const compileGrammarFile = (req: any, res: any) => {
     }
     // Run ANTLR on the grammar file
     runAntlr(req.file.filename, req.file.path, req.body.grammarRoot)
-      .then(async () => {
+      .then(async (warningStack) => {
         // Storing grammar data in the session
         const grammar = Object();
         grammar.name = req.file.filename.split(".")[0];
@@ -106,6 +117,7 @@ export const compileGrammarFile = (req: any, res: any) => {
         req.session.grammar = grammar;
 
         return res.status(200).json({
+          warnings: warningStack,
           tokens: await getGrammarTokens(req.sessionID, grammar.name),
         });
       })
@@ -117,6 +129,13 @@ export const compileGrammarFile = (req: any, res: any) => {
 };
 
 export const compileGrammarString = (req: any, res: any) => {
+  if (req.body.grammar === undefined || req.body.grammarRoot === undefined) {
+    const missingAttributes: string[] = [];
+    if (req.body.grammar === undefined) missingAttributes.push("grammar");
+    if (req.body.grammarRoot === undefined)
+      missingAttributes.push("grammarRoot");
+    return res.status(400).json(new RequestError(missingAttributes));
+  }
   const grammarString: string = req.body.grammar;
 
   /*
@@ -145,7 +164,7 @@ export const compileGrammarString = (req: any, res: any) => {
 
   // Run ANTLR on the grammar file
   runAntlr(filename, path.join(_path, filename), req.body.grammarRoot)
-    .then(async () => {
+    .then(async (warningStack) => {
       // Storing grammar data in the session
       const grammar = Object();
       grammar.name = grammarName;
@@ -153,6 +172,7 @@ export const compileGrammarString = (req: any, res: any) => {
       req.session.grammar = grammar;
 
       return res.status(200).json({
+        warnings: warningStack,
         tokens: await getGrammarTokens(req.sessionID, grammar.name),
       });
     })
