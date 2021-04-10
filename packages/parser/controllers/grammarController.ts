@@ -39,23 +39,29 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).single("file");
 
+// Get the defined tokens in the grammar
+// The generic tokens (which were not properly defined) are returned as their literals
 const getGrammarTokens = async (
   sessionID: string,
   grammarName: string,
 ): Promise<string[]> => {
-  const grammarLexer = await import(
-    `../grammar/${sessionID}/${grammarName}Lexer.ts`
-  );
-  const lexerClass = grammarLexer[`${grammarName}Lexer`];
+  return new Promise(async (resolve) => {
+    const grammarLexerPath = `../grammar/${sessionID}/${grammarName}Lexer.ts`;
 
-  const ruleNames = lexerClass.ruleNames;
-  const literals = lexerClass._LITERAL_NAMES;
-  return ruleNames.map((token: string) => {
-    if (token.startsWith("T__")) {
-      const ind = parseInt(token.substring(3));
-      return literals[ind + 1];
-    }
-    return token;
+    const grammarLexer = await import(grammarLexerPath);
+    const lexerClass = grammarLexer[`${grammarName}Lexer`];
+
+    const ruleNames = lexerClass.ruleNames;
+    const literals = lexerClass._LITERAL_NAMES;
+    resolve(
+      ruleNames.map((token: string) => {
+        if (token.startsWith("T__")) {
+          const ind = parseInt(token.substring(3));
+          return literals[ind + 1];
+        }
+        return token;
+      }),
+    );
   });
 };
 
@@ -107,6 +113,20 @@ export const compileGrammarFile = (req: any, res: any) => {
     if (err) {
       return res.status(500).json(err);
     }
+
+    // Check if the request contains the required attributes
+    if (req.file === undefined || req.body.grammarRoot === undefined) {
+      const missingAttributes: string[] = [];
+      if (req.file === undefined) {
+        missingAttributes.push("file");
+      }
+      if (req.body.grammarRoot === undefined) {
+        missingAttributes.push("grammarRoot");
+      }
+      const err = new RequestError(missingAttributes);
+      return res.status(400).json({ message: err.message });
+    }
+
     // Run ANTLR on the grammar file
     runAntlr(req.file.filename, req.file.path, req.body.grammarRoot)
       .then(async (warningStack) => {
@@ -115,11 +135,14 @@ export const compileGrammarFile = (req: any, res: any) => {
         grammar.name = req.file.filename.split(".")[0];
         grammar.root = req.body.grammarRoot;
         req.session.grammar = grammar;
-
-        return res.status(200).json({
-          warnings: warningStack,
-          tokens: await getGrammarTokens(req.sessionID, grammar.name),
-        });
+        getGrammarTokens(req.sessionID, grammar.name).then(
+          (tokens: string[]) => {
+            return res.status(200).json({
+              warnings: warningStack,
+              tokens: tokens,
+            });
+          },
+        );
       })
       .catch((err: Error) => {
         if (err instanceof AntlrError) return res.status(400).json(err);
@@ -129,12 +152,17 @@ export const compileGrammarFile = (req: any, res: any) => {
 };
 
 export const compileGrammarString = (req: any, res: any) => {
+  // Check if the request contains the required attributes
   if (req.body.grammar === undefined || req.body.grammarRoot === undefined) {
     const missingAttributes: string[] = [];
-    if (req.body.grammar === undefined) missingAttributes.push("grammar");
-    if (req.body.grammarRoot === undefined)
+    if (req.body.grammar === undefined) {
+      missingAttributes.push("grammar");
+    }
+    if (req.body.grammarRoot === undefined) {
       missingAttributes.push("grammarRoot");
-    return res.status(400).json(new RequestError(missingAttributes));
+    }
+    const err = new RequestError(missingAttributes);
+    return res.status(400).json({ message: err.message });
   }
   const grammarString: string = req.body.grammar;
 
