@@ -1,10 +1,13 @@
 import { {{grammarName}}Parser } from "./{{grammarName}}Parser";
 import { {{grammarName}}Lexer } from "./{{grammarName}}Lexer";
 import { CommonTokenStream } from "antlr4ts";
+import { CustomAntlrErrorListener } from "../../errors/CustomAntlrErrorListener";
 
 export default function getParserFromLexer(lexer: {{grammarName}}Lexer): {{grammarName}}Parser {
     const tokenStream = new CommonTokenStream(lexer);
     const parser = new {{grammarName}}Parser(tokenStream);
+    parser.removeErrorListeners();
+    parser.addErrorListener(new CustomAntlrErrorListener());
 
     return parser;
 }

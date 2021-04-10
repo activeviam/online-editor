@@ -1,9 +1,11 @@
 import { {{grammarName}}Lexer } from "./{{grammarName}}Lexer";
 import { CharStreams } from "antlr4ts";
+import { CustomAntlrErrorListener } from "../../errors/CustomAntlrErrorListener";
 
 export default function getLexer(code: string): {{grammarName}}Lexer {
     const inputStream = CharStreams.fromString(code);
     const lexer = new {{grammarName}}Lexer(inputStream);
-    
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(new CustomAntlrErrorListener());
     return lexer;
 }

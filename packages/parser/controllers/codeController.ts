@@ -1,4 +1,11 @@
+import { RequestError } from "../errors/requestError";
+import { CodeProcessingError } from "../errors/CustomAntlrErrorListener";
+
 export const generateAST = async (req: any, res: any): Promise<void> => {
+  if (req.body.code === undefined) {
+    const err = new RequestError(["code"]);
+    return res.status(400).json({ message: err.message });
+  }
   const codeString = req.body.code;
   const sessionID = req.sessionID;
   const grammar = req.session.grammar;
@@ -14,27 +21,60 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   const parserModule = await import(
     `../grammar/${sessionID}/get${grammarName}Parser.ts`
   );
-  const parseTreeModule = await import(
-    `../grammar/${sessionID}/get${grammarName}ParseTree.ts`
-  );
+
+  let parseTreeModule;
+  try {
+    parseTreeModule = await import(
+      `../grammar/${sessionID}/get${grammarName}ParseTree.ts`
+    );
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send({
+      message: "Error loading the AST parser. Please verify your grammar root.",
+    });
+  }
 
   // Creating lexer
   const getLexer = lexerModule.default;
   const lexerClass = grammarLexer[`${grammar.name}Lexer`];
   const ruleNames = lexerClass.ruleNames;
   const literals = lexerClass._LITERAL_NAMES;
-  const lexer = getLexer(codeString);
-
-  // Generating the tokens
-  const result = lexer.getAllTokens();
+  let lexer, result, parser, parseTree;
+  try {
+    lexer = getLexer(codeString);
+    // Generating the tokens
+    result = lexer.getAllTokens();
+  } catch (error) {
+    if (error instanceof CodeProcessingError)
+      return res
+        .status(400)
+        .json({ message: error.message, line: error.line, col: error.col });
+    return res.status(500).json(error);
+  }
 
   // Generating the parse tree
   const getParserFromLexer = parserModule.default;
-
-  const parser = getParserFromLexer(lexer);
+  try {
+    parser = getParserFromLexer(lexer);
+  } catch (error) {
+    if (error instanceof CodeProcessingError)
+      return res
+        .status(400)
+        .json({ message: error.message, line: error.line, col: error.col });
+    return res.status(500).json(error);
+  }
 
   const getParseTree = parseTreeModule.default;
-  const parseTree = getParseTree(codeString);
+  try {
+    parseTree = getParseTree(codeString);
+  } catch (error) {
+    if (error instanceof CodeProcessingError)
+      return res
+        .status(400)
+        .json({ message: error.message, line: error.line, col: error.col });
+    return res.status(500).json(error);
+  }
+
   const orgChart = generateChart(parseTree, parser, ruleNames, literals);
 
   // Tokens object
@@ -47,7 +87,7 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
     stop: token.stop,
   }));
 
-  res.status(200).json({
+  return res.status(200).json({
     ruleNames: ruleNames,
     code: codeString,
     tokens: tokens,
