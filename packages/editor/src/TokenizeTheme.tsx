@@ -87,18 +87,38 @@ const OneLightUI: SequentialColorPalette = [
   "C18401",
 ];
 
+const GitHubLight: SequentialColorPalette = [
+  "A71D5D",
+  "0086B3",
+  "a71d5d",
+  "0086b3",
+  "df5000",
+  "795da3",
+  "0086b3",
+  "F93232",
+  "183691",
+  "009926",
+  "990073",
+  "333333",
+  "63a35c",
+];
+
 type SequentialPaletteId = string;
 
 const SequentialColorPalettes = new Map<
   SequentialPaletteId,
   SequentialColorPalette
 >([
-  ["LightOceanColors", LightOceanColors],
   ["OneLightUI", OneLightUI],
+  ["LightOceanColors", LightOceanColors],
+  ["GitHubLight", GitHubLight],
 ]);
 
 export const getSequentialColorPalette = (paletteId: SequentialPaletteId) =>
   SequentialColorPalettes.get(paletteId);
+
+export const getSequentialPaletteIds = () =>
+  Array.from(SequentialColorPalettes.keys());
 
 export class SequentialThemeProvider extends TokenizeThemeProvider {
   colorPalette: SequentialColorPalette;
@@ -143,6 +163,8 @@ const INTERNAL_DEFAULT_COLOR = "000000";
 export class CustomThemeProvider extends TokenizeThemeProvider {
   /* Attribute custom colors to tokens. */
 
+  categories: Map<string, Map<TokenPragmaticId, TokenizeColor>> | undefined;
+
   constructor(
     tokenPragmaticIds: TokenPragmaticId[],
     previousTheme?: CustomThemeProvider, // if provided inherits colors from previous theme
@@ -154,6 +176,8 @@ export class CustomThemeProvider extends TokenizeThemeProvider {
     super();
     if (previousTheme) {
       this.colorsAssigned = previousTheme.colorsAssigned;
+
+      this.categories = previousTheme.categories;
       // token garbage collector. delete old tokens if not in current tokens.
       // we can't keep everything forever.
       const garbage = new Set(this.colorsAssigned.keys());
@@ -165,6 +189,8 @@ export class CustomThemeProvider extends TokenizeThemeProvider {
       for (const trashToken of garbage) {
         this.colorsAssigned.delete(trashToken);
       }
+    } else {
+      this.categories = new Map();
     }
 
     // Default behavior if no custom color set

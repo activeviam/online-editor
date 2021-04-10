@@ -1,17 +1,14 @@
 import React, { useEffect, useMemo, useRef } from "react";
 
 import { useLocalStorage } from "react-use";
-import { editor, IDisposable, Position } from "monaco-editor";
+import { IDisposable } from "monaco-editor";
 import { useMonaco, Monaco } from "@monaco-editor/react";
 
-import { CustomTokensProvider } from "../CustomLanguageTokensProvider";
+import { CustomTokensProvider } from "../TokenizeLogic/CustomLanguageTokensProvider";
 import { FHEditorProps, FullHeightEditor } from "./FullHeightEditor";
 import { buildParsedTokensByLine } from "../RequestPostprocessing";
-import {
-  getTokenPragmaticDescription,
-  SequentialThemeProvider,
-  TokenizeThemeProvider,
-} from "../TokenizeTheme";
+import { getTokenizeHoverProvider } from "../TokenizeLogic/TokenizeHoverProvider";
+import { TokenizeThemeProvider } from "../TokenizeTheme";
 
 import { ParsedCustomLanguage, TokenInfo } from "../Types/TokenizeTypes";
 
@@ -48,54 +45,27 @@ export const TokenizeEditor = (props: IProps) => {
       }
 
       // Update Tokens
-      if (tokenProviderDisposable.current !== undefined) {
-        tokenProviderDisposable.current.dispose();
-      }
-
       const tokenProviderDisposable_ = monaco.languages.setTokensProvider(
         "customLanguage",
         new CustomTokensProvider(tokensByLine)
       );
+
+      if (tokenProviderDisposable.current !== undefined) {
+        tokenProviderDisposable.current.dispose();
+      }
+
       tokenProviderDisposable.current = tokenProviderDisposable_;
 
       // Update Hover
+      const hoverProvider = getTokenizeHoverProvider(tokensByLine);
+      const hoverDisposable_ = monaco.languages.registerHoverProvider(
+        "customLanguage",
+        hoverProvider
+      );
       if (hoverDisposable.current !== undefined) {
         hoverDisposable.current.dispose();
       }
 
-      const hoverDisposable_ = monaco.languages.registerHoverProvider(
-        "customLanguage",
-        {
-          provideHover: (model: editor.ITextModel, position: Position) => {
-            const { column, lineNumber } = position;
-
-            const tokensCurrentLine = tokensByLine.get(lineNumber);
-
-            if (tokensCurrentLine === undefined) {
-              return { contents: [] };
-            } else if (tokensCurrentLine.length === 1) {
-              return {
-                contents: [
-                  { value: getTokenPragmaticDescription(tokensCurrentLine[0]) },
-                ],
-              };
-            }
-
-            const correctToken = tokensCurrentLine
-              .slice()
-              .reverse()
-              .find((candidate: TokenInfo) => candidate.column < column);
-
-            if (correctToken === undefined) {
-              return { contents: [] };
-            }
-
-            return {
-              contents: [{ value: getTokenPragmaticDescription(correctToken) }],
-            };
-          },
-        }
-      );
       hoverDisposable.current = hoverDisposable_;
       monaco.editor.setTheme("customTheme");
     },
@@ -112,14 +82,6 @@ export const TokenizeEditor = (props: IProps) => {
         );
       } else {
         setTokensByLineStringified(undefined);
-      }
-
-      const tokenPragmaticIds = parsedCustomLanguage.ruleNames;
-      const colorPaletteId = "OneLightUI";
-      if (tokenPragmaticIds.length > 0) {
-        setThemeProvider(
-          new SequentialThemeProvider(tokenPragmaticIds, colorPaletteId)
-        );
       }
     }
   }, [

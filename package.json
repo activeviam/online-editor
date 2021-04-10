@@ -19,7 +19,7 @@
     "packages/*"
   ],
   "resolutions": {
-    "**/@typescript-eslint/eslint-plugin": "^4.1.1",
-    "**/@typescript-eslint/parser": "^4.1.1"
+    "**/@typescript-eslint/eslint-plugin": "^4.20.0",
+    "**/@typescript-eslint/parser": "^4.20.0"
   }
 }
