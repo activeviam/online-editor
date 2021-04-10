@@ -1,8 +1,17 @@
 import React from "react";
 
 import { Button, TextField } from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
 
 import "./Menu.css";
+
+const AntlrRootNodeField = withStyles({
+  root: {
+    "& .MuiInputBase-root": {
+      color: "#949475",
+    },
+  },
+})(TextField);
 
 interface IProps {
   //onChangeVisitor: (visitor: string) => void;
@@ -27,7 +36,7 @@ export const GrammarMenu = (props: IProps) => {
     <div className="whole-menu">
       <div className="menu-left">
         <form>
-          <TextField
+          <AntlrRootNodeField
             onChange={(e) => {
               props.onChangeRootNode(e.target.value);
             }}
@@ -41,7 +50,7 @@ export const GrammarMenu = (props: IProps) => {
             size="small"
             color="secondary"
             required
-          ></TextField>
+          ></AntlrRootNodeField>
         </form>
       </div>
       <div className="menu-right">

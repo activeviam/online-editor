@@ -90,6 +90,7 @@ export const GrammarTools = (props: IProps) => {
         <GrammarEditor
           defaultLanguage="antlr"
           value={grammar}
+          setGrammar={setGrammar}
           onChange={handleGrammarChange}
         />
       </div>

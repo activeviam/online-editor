@@ -2,7 +2,9 @@ import React, { Fragment } from "react";
 
 import {
   Button,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -18,11 +20,13 @@ import "./Menu.css";
 
 interface IProps {
   customThemeProvider: CustomThemeProvider;
+  balanceColors: boolean | undefined;
   sequentialThemeProvider: SequentialThemeProvider | undefined;
   sequentialPaletteId: string | undefined;
   themeMode: ThemeMode | undefined;
   onChangePalette: () => void;
   onClickReset: () => void;
+  onChangeBalanceColors: () => void;
   setThemeMode: (mode: ThemeMode) => void;
   setSequentialPaletteId: (id: string) => void;
 }
@@ -67,27 +71,41 @@ export const CustomizeThemeSubmenu = (props: IProps) => {
       </div>
       <div className="menu-right">
         {props.themeMode === ThemeMode.Sequential && (
-          <FormControl style={{ minWidth: minSelectorWidth }}>
-            <InputLabel color="secondary">sequential color palette</InputLabel>
-            <Select
-              value={props.sequentialPaletteId}
-              onChange={(event) => {
-                props.setSequentialPaletteId(event.target.value as string);
-                props.onChangePalette();
-              }}
-              color="secondary"
-            >
-              {sequentialPaletteIds.map((paletteId, index) => (
-                <MenuItem
-                  value={paletteId}
-                  style={{ minWidth: minSelectorWidth }}
-                  key={index}
-                >
-                  {paletteId}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Fragment>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={props.balanceColors}
+                  onChange={props.onChangeBalanceColors}
+                />
+              }
+              label="Balanced Symbols"
+            />
+            <div className="divider" />
+            <FormControl style={{ minWidth: minSelectorWidth }}>
+              <InputLabel color="secondary">
+                sequential color palette
+              </InputLabel>
+              <Select
+                value={props.sequentialPaletteId}
+                onChange={(event) => {
+                  props.setSequentialPaletteId(event.target.value as string);
+                  props.onChangePalette();
+                }}
+                color="secondary"
+              >
+                {sequentialPaletteIds.map((paletteId, index) => (
+                  <MenuItem
+                    value={paletteId}
+                    style={{ minWidth: minSelectorWidth }}
+                    key={index}
+                  >
+                    {paletteId}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Fragment>
         )}
       </div>
     </div>

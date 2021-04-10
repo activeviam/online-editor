@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 
 /*
-React component containing the user defined language editor and button.
+React component containing the token theme definer and the syntax tree
 */
 
 import { useFullScreenHandle } from "react-full-screen";
@@ -43,7 +43,10 @@ interface IProps {
 }
 
 export const RightPane = (props: IProps) => {
-  const [orientation, setOrientation] = useState<Orientation>("vertical");
+  const [orientation, setOrientation] = useLocalStorage<Orientation>(
+    "orientation",
+    "vertical"
+  );
   const [initialDepth, setInitialDepth] = useLocalStorage<number>(
     "initialDepth",
     2
@@ -88,28 +91,23 @@ export const RightPane = (props: IProps) => {
         <TabPanel value={props.tabValue} index={1}>
           <Paper className="status-pane" elevation={2}>
             {props.parsedCustomLanguage !== undefined && (
-              <TokenizeTree
-                {...props}
-                key={initialDepth}
-                parsedCustomLanguage={props.parsedCustomLanguage!}
-                initialDepth={
-                  initialDepth !== undefined && initialDepth > -1
-                    ? initialDepth
-                    : undefined
-                }
-                orientation={orientation}
-                setOrientation={setOrientation}
-                fullScreenHandle={fullScreenHandle}
-              />
+              <div style={{ height: "100%", width: "100%" }}>
+                <TokenizeTree
+                  {...props}
+                  key={initialDepth}
+                  parsedCustomLanguage={props.parsedCustomLanguage}
+                  initialDepth={
+                    initialDepth !== undefined && initialDepth > -1
+                      ? initialDepth
+                      : undefined
+                  }
+                  orientation={orientation || "vertical"}
+                  setOrientation={setOrientation}
+                  fullScreenHandle={fullScreenHandle}
+                />
+              </div>
             )}
           </Paper>
-        </TabPanel>
-        <TabPanel value={props.tabValue} index={2}>
-          <h2>Visitor Status</h2>
-          <h3>not yet implemented</h3>
-          <ul>
-            <li>Implement visitor code execution and output</li>
-          </ul>
         </TabPanel>
       </div>
     </div>

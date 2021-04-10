@@ -41,9 +41,6 @@ export const LeftPane = (props: IProps) => {
       <TabPanel value={props.tabValue} index={1}>
         <TokenizeTools {...props} />
       </TabPanel>
-      <TabPanel value={props.tabValue} index={2}>
-        <h3>Not yet implemented.</h3>
-      </TabPanel>
     </div>
   );
 };
