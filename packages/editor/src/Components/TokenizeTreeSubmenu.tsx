@@ -16,8 +16,8 @@ import "./Menu.css";
 interface IProps {
   tabValue: number;
   initialDepth: number | undefined;
+  orientation: Orientation | undefined;
   onClickFullScreen: () => void;
-  orientation: Orientation;
   setOrientation: (newOrientation: Orientation) => void;
   setInitialDepth: (newDepth: number | undefined) => void;
 }

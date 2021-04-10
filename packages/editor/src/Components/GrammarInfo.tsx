@@ -12,6 +12,7 @@ import {
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 
 import "./CustomizeTheme.css";
+import { useLocalStorage } from "react-use";
 
 interface IProps {
   customThemeProvider: CustomThemeProvider;
@@ -32,6 +33,11 @@ export const GrammarInfo = (props: IProps) => {
 
   const customThemeProviderRef = useRef<CustomThemeProvider | null>(null);
 
+  const [balanceColors, setBalanceColors] = useLocalStorage(
+    "balanceColors",
+    false
+  );
+
   useEffect(() => {
     if (props.customThemeProvider !== undefined) {
       customThemeProviderRef.current = props.customThemeProvider;
@@ -50,7 +56,11 @@ export const GrammarInfo = (props: IProps) => {
       const tokenPragmaticIds = grammarResponse.tokens;
       if (sequentialPaletteId !== undefined) {
         setSequentialThemeProvider(
-          new SequentialThemeProvider(tokenPragmaticIds, sequentialPaletteId)
+          new SequentialThemeProvider(
+            tokenPragmaticIds,
+            sequentialPaletteId,
+            balanceColors
+          )
         );
         if (customThemeProviderRef.current !== null) {
           customThemeProviderRef.current.updateTokens(tokenPragmaticIds);
@@ -63,6 +73,7 @@ export const GrammarInfo = (props: IProps) => {
     }
   }, [
     grammarResponse,
+    balanceColors,
     sequentialPaletteId,
     setSequentialThemeProvider,
     setCustomThemeProvider,
@@ -76,12 +87,18 @@ export const GrammarInfo = (props: IProps) => {
     props.setThemeMode(ThemeMode.Sequential);
   };
 
+  const handleChangeBalanceColors = () => {
+    setBalanceColors(!balanceColors);
+  };
+
   return (
     <div className="grammar-info-pane">
       <CustomizeThemeSubmenu
         {...props}
+        balanceColors={balanceColors}
         onClickReset={handleOnClickReset}
         onChangePalette={handleOnChangePalette}
+        onChangeBalanceColors={handleChangeBalanceColors}
       />
       <div className="customize-theme-pane">
         {props.themeMode === ThemeMode.Sequential && (

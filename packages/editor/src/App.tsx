@@ -66,7 +66,6 @@ const App = () => {
           >
             <Tab label="ANTLR Grammar" />
             <Tab label="Tokenize Input" />
-            <Tab label="Implement Visitor" />
           </Tabs>
         </AppBar>
         <div className="application-details">

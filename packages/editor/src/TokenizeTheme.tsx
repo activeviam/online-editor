@@ -93,6 +93,53 @@ export abstract class TokenizeThemeProvider {
 /* Sequential Theme */
 export type SequentialColorPalette = TokenizeColor[];
 
+const CompleteLight: SequentialColorPalette = [
+  "CFCFC2",
+  "555555",
+  "d7ba7d",
+  "e5e500",
+  "e5ac00",
+  "cc4e52",
+  "5aaa7f",
+  "cc9900",
+  "e57900",
+  "949475",
+  "45aa73",
+  "c5914c",
+  "608b4e",
+  "eb9195",
+  "202020",
+  "b9b1d5",
+  "75715E",
+  "ce9178",
+  "cc666a",
+  "E6DB74",
+  "e03e44",
+  "0987cb",
+  "78a6a6",
+  "F92672",
+  "ebd8b7",
+  "cf85be",
+  "a6a6a6",
+  "7d7d7d",
+  "b5cea8",
+  "569cd6",
+  "63bf8d",
+  "cc833b",
+  "709dce",
+  "FFFFFF",
+  "555574",
+  "000080",
+  "cc5926",
+  "67675f",
+  "9b90c3",
+  "d4d4d4",
+  "c2c269",
+  "395555",
+  "A6E22E",
+  "52a0cb",
+];
+
 const LightOceanColors: SequentialColorPalette = [
   "a4bf8d",
   "ebca89",
@@ -138,6 +185,7 @@ const SequentialColorPalettes = new Map<
   SequentialColorPalette
 >([
   ["OneLightUI", OneLightUI],
+  ["CompleteLight", CompleteLight],
   ["LightOceanColors", LightOceanColors],
   ["GitHubLight", GitHubLight],
 ]);
@@ -151,26 +199,61 @@ export const getSequentialPaletteIds = () =>
 export class SequentialThemeProvider extends TokenizeThemeProvider {
   colorPalette: SequentialColorPalette;
   colorPaletteId: SequentialPaletteId;
+  postFilters: ((
+    colorsAssigned: Map<TokenPragmaticId, TokenizeColor>
+  ) => Map<TokenPragmaticId, TokenizeColor> | undefined)[];
 
   currentColorCounter: number;
 
   constructor(
     tokenPragmaticIds: TokenPragmaticId[],
-    colorPaletteId: SequentialPaletteId
+    colorPaletteId: SequentialPaletteId,
+    runPostfilters = true
   ) {
     super();
     this.colorPaletteId = colorPaletteId;
     this.colorPalette = [];
+    this.postFilters = [];
     this.currentColorCounter = 0;
     const colorPalette = getSequentialColorPalette(colorPaletteId);
-    if (colorPalette !== undefined) {
-      this.colorPalette = colorPalette;
-      this.attributeSequentialColors(tokenPragmaticIds);
-    } else {
+    if (colorPalette === undefined) {
       console.warn(
         `Couldn't find color palette of id ${colorPaletteId}. Leaving empty...`
       );
+      return;
     }
+    this.colorPalette = colorPalette;
+    this.attributeSequentialColors(tokenPragmaticIds);
+
+    if (runPostfilters === true) {
+      this.runPostFilters();
+    }
+  }
+
+  private runPostFilters() {
+    this.matchOpenClosePostfilter();
+  }
+
+  private matchOpenClosePostfilter() {
+    const openCloseSeen = ["(", ")", "[", "]", "{", "}"]
+      .map((symbol) => `'${symbol}'`)
+      .filter((symbol) => this.colorsAssigned.has(symbol));
+    if (openCloseSeen === undefined || openCloseSeen.length === 0) {
+      return;
+    }
+
+    const colorForAll = this.getTokenColor(openCloseSeen[0]);
+
+    if (colorForAll === undefined) {
+      console.error(
+        `Didn't find color for token ${openCloseSeen[0]} while applying postprocessing. Skipping...`
+      );
+      return;
+    }
+
+    openCloseSeen.slice(1).forEach((symbolSeen: string) => {
+      this.colorsAssigned.set(symbolSeen, colorForAll);
+    });
   }
 
   private attributeSequentialColors(tokenPragmaticIds: TokenPragmaticId[]) {
