@@ -1,12 +1,11 @@
-import { {{grammarName}}Parser, {{toTitleCase grammarRoot}}Context } from "./{{grammarName}}Parser";
-import { {{grammarName}}Lexer } from "./{{grammarName}}Lexer";
-import { CharStreams, CommonTokenStream } from "antlr4ts";
+import { {{toTitleCase grammarRoot}}Context } from "./{{grammarName}}Parser";
+
+import getLexer from "./get{{grammarName}}Lexer";
+import getParser from "./get{{grammarName}}Parser";
 
 export default function getParseTree(code: string): {{toTitleCase grammarRoot}}Context {
-    const inputStream = CharStreams.fromString(code);
-    const lexer = new {{grammarName}}Lexer(inputStream);
-    const tokenStream = new CommonTokenStream(lexer);
-    const parser = new {{grammarName}}Parser(tokenStream);
+    const lexer = getLexer(code);
+    const parser = getParser(lexer);
 
     return parser.{{grammarRoot}}();
 }
