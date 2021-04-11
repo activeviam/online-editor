@@ -1,7 +1,7 @@
 import { {{toTitleCase grammarRoot}}Context } from "./{{grammarName}}Parser";
 
-import getLexer from "./get{{grammarName}}Lexer";
-import getParser from "./get{{grammarName}}Parser";
+import getLexer from "./get{{toTitleCase grammarName}}Lexer";
+import getParser from "./get{{toTitleCase grammarName}}Parser";
 
 export default function getParseTree(code: string): {{toTitleCase grammarRoot}}Context {
     const lexer = getLexer(code);
