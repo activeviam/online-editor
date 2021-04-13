@@ -13,13 +13,17 @@ import {
 } from "../TokenizeTheme";
 import { TokenizeTools } from "./TokenizeTools";
 
-import { GrammarRequestResult } from "../Types/GrammarTypes";
-import { ParsedCustomLanguage } from "../Types/TokenizeTypes";
+import {
+  GrammarRequestError,
+  GrammarRequestResult,
+} from "../Types/GrammarTypes";
+import { ParsedCustomLanguage, ParseError } from "../Types/TokenizeTypes";
 
 import "./Panes.css";
 
 interface IProps {
   grammarResponse: GrammarRequestResult | undefined;
+  grammarError: GrammarRequestError | undefined;
   isGrammarCompiled: boolean | undefined;
   sequentialPaletteId: string | undefined;
   parsedCustomLanguage: ParsedCustomLanguage | undefined;
@@ -28,7 +32,12 @@ interface IProps {
   sequentialThemeProvider: SequentialThemeProvider | undefined;
   themeMode: ThemeMode | undefined;
   setParsedCustomLanguage: (parsed: ParsedCustomLanguage) => void;
+  setParseError: (newParseError: ParseError | undefined) => void;
   setGrammarResponse: (response: GrammarRequestResult) => void;
+  setShowWarning: (newShowWarning: boolean) => void;
+  setShowParseError: (newShowParseError: boolean) => void;
+  setShowGrammarError: (newShowGrammarError: boolean) => void;
+  setGrammarError: (error: GrammarRequestError | undefined) => void;
   setIsGrammarCompiled: (isIt: boolean) => void;
 }
 

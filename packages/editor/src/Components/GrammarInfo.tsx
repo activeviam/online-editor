@@ -1,5 +1,10 @@
 import React, { useEffect, useRef } from "react";
 
+import { useLocalStorage } from "react-use";
+import ReactModal from "react-modal";
+import WarningIcon from "@material-ui/icons/Warning";
+import { Button, Typography } from "@material-ui/core";
+
 import { CustomizeThemeSubmenu } from "./CustomizeThemeSubmenu";
 import { CustomTokens } from "./CustomTokens";
 import { SequentialTokens } from "./SequentialTokens";
@@ -12,16 +17,18 @@ import {
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 
 import "./CustomizeTheme.css";
-import { useLocalStorage } from "react-use";
+import "./Menu.css";
 
 interface IProps {
   customThemeProvider: CustomThemeProvider;
   grammarResponse: GrammarRequestResult | undefined;
+  showWarning: boolean | undefined;
   sequentialPaletteId: string | undefined;
   sequentialThemeProvider: SequentialThemeProvider | undefined;
   themeMode: ThemeMode | undefined;
   setSequentialPaletteId: (id: string) => void;
   setThemeMode: (mode: ThemeMode | undefined) => void;
+  setShowWarning: (newShowWarning: boolean) => void;
   setSequentialThemeProvider: (
     themeProvider: SequentialThemeProvider | undefined
   ) => void;
@@ -93,6 +100,51 @@ export const GrammarInfo = (props: IProps) => {
 
   return (
     <div className="grammar-info-pane">
+      {props.grammarResponse!.warnings && (
+        <ReactModal
+          isOpen={props.showWarning}
+          onAfterClose={() => props.setShowWarning(false)}
+          ariaHideApp={false}
+          style={{
+            content: { background: "lightyellow" },
+            overlay: { zIndex: 3000 },
+          }}
+        >
+          <div style={{ height: "10%" }}>
+            <div className="whole-menu">
+              <div className="menu-left">
+                <Typography
+                  variant="h5"
+                  style={{ fontWeight: "bold", textDecoration: "underline" }}
+                >
+                  Warning
+                  {props.grammarResponse !== undefined &&
+                  props.grammarResponse.warnings.length > 1
+                    ? "s "
+                    : " "}
+                  Received <WarningIcon />
+                </Typography>
+              </div>
+              <div className="menu-right">
+                <Button
+                  color="secondary"
+                  variant="outlined"
+                  onClick={() => {
+                    props.setShowWarning(false);
+                  }}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+          <ul>
+            {props.grammarResponse!.warnings.map((warning, index) => (
+              <li key={index}>{warning}</li>
+            ))}
+          </ul>
+        </ReactModal>
+      )}
       <CustomizeThemeSubmenu
         {...props}
         balanceColors={balanceColors}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 /*
 Component containing the user defined language editor and its menu.
@@ -16,7 +16,12 @@ import {
 } from "../TokenizeTheme";
 
 import { GrammarRequestResult } from "../Types/GrammarTypes";
-import { ParsedCustomLanguage } from "../Types/TokenizeTypes";
+import {
+  instanceOfParsedCustomLanguage,
+  instanceOfParseError,
+  ParsedCustomLanguage,
+  ParseError,
+} from "../Types/TokenizeTypes";
 
 import "./Panes.css";
 
@@ -27,6 +32,8 @@ interface IProps {
   themeMode: ThemeMode | undefined;
   grammarResponse: GrammarRequestResult | undefined;
   setParsedCustomLanguage: (parsed: ParsedCustomLanguage) => void;
+  setParseError: (newParseError: ParseError | undefined) => void;
+  setShowParseError: (newShowParseError: boolean) => void;
 }
 
 export const TokenizeTools = (props: IProps) => {
@@ -54,15 +61,29 @@ export const TokenizeTools = (props: IProps) => {
     setCustomLanguage(changedCustomLanguage);
   };
 
+  const { setParsedCustomLanguage, setParseError, setShowParseError } = props;
+  const processParseReponse = useCallback(
+    (parseResponse: ParsedCustomLanguage | ParseError | undefined) => {
+      if (parseResponse === undefined) {
+        return;
+      } else if (instanceOfParsedCustomLanguage(parseResponse)) {
+        setParsedCustomLanguage(parseResponse);
+        setShowParseError(false);
+      } else if (instanceOfParseError(parseResponse)) {
+        setParseError(parseResponse);
+        setShowParseError(true);
+      }
+    },
+    [setParsedCustomLanguage, setShowParseError, setParseError]
+  );
+
   const handleParseClick = async () => {
     if (customLanguage === undefined) {
       return;
     }
-    const parsed = await parseCustomLanguage(customLanguage);
-    props.setParsedCustomLanguage(parsed);
+    parseCustomLanguage(customLanguage).then(processParseReponse);
   };
 
-  const { setParsedCustomLanguage } = props;
   useEffect(() => {
     if (tokenizeFirstRun.current !== false) {
       tokenizeFirstRun.current = false;
@@ -70,13 +91,9 @@ export const TokenizeTools = (props: IProps) => {
     }
 
     if (customLanguage !== undefined && shouldAutoTokenize) {
-      const fetchTokenized = async () => {
-        const tokenized = await parseCustomLanguage(customLanguage);
-        setParsedCustomLanguage(tokenized);
-      };
-      fetchTokenized();
+      parseCustomLanguage(customLanguage).then(processParseReponse);
     }
-  }, [customLanguage, shouldAutoTokenize, setParsedCustomLanguage]);
+  }, [customLanguage, shouldAutoTokenize, processParseReponse]);
 
   return (
     <div className="whole-pane">

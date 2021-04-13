@@ -9,6 +9,7 @@ import {
   Point,
 } from "react-d3-tree/lib/types/common";
 
+import { TreeCustomNode } from "./TreeCustomNode";
 import {
   CustomThemeProvider,
   SequentialThemeProvider,
@@ -19,7 +20,6 @@ import { ParsedCustomLanguage } from "../Types/TokenizeTypes";
 
 import "./Menu.css";
 import "./CustomizeTheme.css";
-import { TreeCustomNode } from "./TreeCustomNode";
 
 interface IProps {
   customThemeProvider: CustomThemeProvider;

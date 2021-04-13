@@ -18,8 +18,11 @@ import {
 import { TokenizeTreeSubmenu } from "./TokenizeTreeSubmenu";
 import { TokenizeTree } from "./TokenizeTree";
 
-import { ParsedCustomLanguage } from "../Types/TokenizeTypes";
-import { GrammarRequestResult } from "../Types/GrammarTypes";
+import { ParsedCustomLanguage, ParseError } from "../Types/TokenizeTypes";
+import {
+  GrammarRequestError,
+  GrammarRequestResult,
+} from "../Types/GrammarTypes";
 
 import "./Panes.css";
 import "./Menu.css";
@@ -28,7 +31,12 @@ interface IProps {
   customThemeProvider: CustomThemeProvider;
   grammarResponse: GrammarRequestResult | undefined;
   isGrammarCompiled: boolean | undefined;
+  grammarError: GrammarRequestError | undefined;
+  showWarning: boolean | undefined;
+  showGrammarError: boolean | undefined;
+  showParseError: boolean | undefined;
   parsedCustomLanguage: ParsedCustomLanguage | undefined;
+  parseError: ParseError | undefined;
   sequentialPaletteId: string | undefined;
   sequentialThemeProvider: SequentialThemeProvider | undefined;
   themeMode: ThemeMode | undefined;
@@ -38,6 +46,7 @@ interface IProps {
   setSequentialThemeProvider: (
     themeProvider: SequentialThemeProvider | undefined
   ) => void;
+  setShowWarning: (newShowWarning: boolean) => void;
   setParsedCustomLanguage: (parsed: ParsedCustomLanguage) => void;
   setCustomThemeProvider: (themeProvider: CustomThemeProvider) => void;
 }
@@ -85,28 +94,44 @@ export const RightPane = (props: IProps) => {
       <div className="status-pane">
         <TabPanel value={props.tabValue} index={0}>
           <Paper className="status-paper" elevation={2}>
-            <GrammarInfo {...props} />
+            {props.showGrammarError === false &&
+              props.grammarResponse !== undefined && <GrammarInfo {...props} />}
+            {props.showGrammarError === true &&
+              props.grammarError !== undefined && (
+                <ul>
+                  {props.grammarError.errors.map((error) => (
+                    <li>
+                      <Typography>{error}</Typography>
+                    </li>
+                  ))}
+                </ul>
+              )}
           </Paper>
         </TabPanel>
         <TabPanel value={props.tabValue} index={1}>
           <Paper className="status-pane" elevation={2}>
-            {props.parsedCustomLanguage !== undefined && (
-              <div style={{ height: "100%", width: "100%" }}>
-                <TokenizeTree
-                  {...props}
-                  key={initialDepth}
-                  parsedCustomLanguage={props.parsedCustomLanguage}
-                  initialDepth={
-                    initialDepth !== undefined && initialDepth > -1
-                      ? initialDepth
-                      : undefined
-                  }
-                  orientation={orientation || "vertical"}
-                  setOrientation={setOrientation}
-                  fullScreenHandle={fullScreenHandle}
-                />
-              </div>
-            )}
+            {props.showParseError === true &&
+              props.parseError !== undefined && (
+                <Typography>{`${props.parseError.message} (line ${props.parseError.line}, col ${props.parseError.col})`}</Typography>
+              )}
+            {props.showParseError !== true &&
+              props.parsedCustomLanguage !== undefined && (
+                <div style={{ height: "100%", width: "100%" }}>
+                  <TokenizeTree
+                    {...props}
+                    key={initialDepth}
+                    parsedCustomLanguage={props.parsedCustomLanguage}
+                    initialDepth={
+                      initialDepth !== undefined && initialDepth > -1
+                        ? initialDepth
+                        : undefined
+                    }
+                    orientation={orientation || "vertical"}
+                    setOrientation={setOrientation}
+                    fullScreenHandle={fullScreenHandle}
+                  />
+                </div>
+              )}
           </Paper>
         </TabPanel>
       </div>
