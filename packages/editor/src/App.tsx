@@ -12,8 +12,11 @@ import {
   useLocalStorageCustomTheme,
 } from "./TokenizeTheme";
 
-import { GrammarRequestResult } from "./Types/GrammarTypes";
-import { ParsedCustomLanguage } from "./Types/TokenizeTypes";
+import {
+  GrammarRequestError,
+  GrammarRequestResult,
+} from "./Types/GrammarTypes";
+import { ParsedCustomLanguage, ParseError } from "./Types/TokenizeTypes";
 
 import "./App.css";
 
@@ -26,10 +29,32 @@ const App = () => {
     ParsedCustomLanguage | undefined
   >("parsedCustomLanguage");
 
+  const [parseError, setParseError] = useLocalStorage<ParseError | undefined>(
+    "parseError",
+    undefined
+  );
+
+  const [showParseError, setShowParseError] = useLocalStorage<boolean>(
+    "showParseError",
+    false
+  );
+
   const [isGrammarCompiled, setIsGrammarCompiled] = useLocalStorage<boolean>(
     "isGrammarCompiled",
     false
   );
+
+  const [grammarError, setGrammarError] = useLocalStorage<GrammarRequestError>(
+    "grammarError",
+    undefined
+  );
+
+  const [showGrammarError, setShowGrammarError] = useLocalStorage<boolean>(
+    "showGrammarError",
+    false
+  );
+
+  const [showWarning, setShowWarning] = useState(false);
 
   const [themeMode, setThemeMode] = useLocalStorage(
     "themeMode",
@@ -88,10 +113,16 @@ const App = () => {
           <LeftPane
             customThemeProvider={customThemeProvider}
             grammarResponse={grammarResponse}
+            grammarError={grammarError}
             setGrammarResponse={setGrammarResponse}
+            setGrammarError={setGrammarError}
             isGrammarCompiled={isGrammarCompiled}
             parsedCustomLanguage={parsedCustomLanguage}
             setParsedCustomLanguage={setParsedCustomLanguage}
+            setParseError={setParseError}
+            setShowWarning={setShowWarning}
+            setShowGrammarError={setShowGrammarError}
+            setShowParseError={setShowParseError}
             sequentialThemeProvider={sequentialThemeProvider}
             sequentialPaletteId={sequentialPaletteId}
             tabValue={tabValue}
@@ -103,14 +134,20 @@ const App = () => {
           <RightPane
             customThemeProvider={customThemeProvider}
             grammarResponse={grammarResponse}
+            grammarError={grammarError}
             isGrammarCompiled={isGrammarCompiled}
             parsedCustomLanguage={parsedCustomLanguage}
+            parseError={parseError}
+            showWarning={showWarning}
             sequentialPaletteId={sequentialPaletteId}
             sequentialThemeProvider={sequentialThemeProvider}
             tabValue={tabValue}
             themeMode={themeMode}
             setSequentialPaletteId={setSequentialPaletteId}
             setParsedCustomLanguage={setParsedCustomLanguage}
+            setShowWarning={setShowWarning}
+            showParseError={showParseError}
+            showGrammarError={showGrammarError}
             setThemeMode={setThemeMode}
             setSequentialThemeProvider={setSequentialThemeProvider}
             setCustomThemeProvider={setCustomThemeProvider}

@@ -1,7 +1,10 @@
 import axios from "axios";
 
-import { ParsedCustomLanguage } from "./Types/TokenizeTypes";
-import { GrammarRequestResult } from "./Types/GrammarTypes";
+import { ParsedCustomLanguage, ParseError } from "./Types/TokenizeTypes";
+import {
+  GrammarRequestError,
+  GrammarRequestResult,
+} from "./Types/GrammarTypes";
 
 const requestUrl = `${process.env.REACT_APP_REQUEST_BASE_URL}:${process.env.REACT_APP_REQUEST_PORT}`;
 
@@ -28,7 +31,7 @@ export const uploadGrammarFromFile = async (
 export const uploadGrammar = async (
   grammar: string,
   rootNode: string
-): Promise<GrammarRequestResult | undefined> => {
+): Promise<GrammarRequestResult | GrammarRequestError | undefined> => {
   const grammarResponse = await axios
     .post(
       requestUrl + process.env.REACT_APP_ENDPOINT_UPLOAD_GRAMMAR,
@@ -38,10 +41,21 @@ export const uploadGrammar = async (
       },
       { withCredentials: true }
     )
-    .then((response) => response.data)
-    .catch((reason) => {
-      console.error(reason);
-      return undefined;
+    .then((response) => response.data as GrammarRequestResult)
+    .catch((error) => {
+      if (error.response === undefined) {
+        console.error("Didn't receive response to grammar compile request.");
+        return undefined;
+      }
+      const errorCode = error.response.status;
+      if (errorCode === 400) {
+        return error.response.data as GrammarRequestError;
+      } else {
+        console.error(
+          `Received unknown error code ${errorCode} on grammar compile request.`
+        );
+        return undefined;
+      }
     });
 
   return grammarResponse;
@@ -49,7 +63,7 @@ export const uploadGrammar = async (
 
 export const parseCustomLanguage = async (
   userDefinedLanguage: string
-): Promise<ParsedCustomLanguage> => {
+): Promise<ParsedCustomLanguage | ParseError | undefined> => {
   const parsed = await axios
     .post(
       requestUrl + process.env.REACT_APP_ENDPOINT_PARSE,
@@ -59,6 +73,19 @@ export const parseCustomLanguage = async (
       { withCredentials: true }
     )
     .then((response) => response.data)
-    .catch(console.error);
+    .catch((error) => {
+      if (error.response === undefined) {
+        console.error("Didn't receive response to parse request.");
+        return undefined;
+      }
+      const errorCode = error.response.status;
+      if (errorCode === 400) {
+        return error.response.data as ParseError;
+      } else {
+        console.error(
+          `Received unknown error code ${errorCode} on tokenize request.`
+        );
+      }
+    });
   return parsed;
 };

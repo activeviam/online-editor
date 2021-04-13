@@ -13,17 +13,26 @@ import { GrammarEditor } from "./GrammarEditor";
 import { GrammarMenu } from "./GrammarMenu";
 import { ThemeMode } from "../TokenizeTheme";
 
-import { GrammarRequestResult } from "../Types/GrammarTypes";
+import {
+  instanceOfGrammarRequestResult,
+  instanceOfGrammarRequestError,
+  GrammarRequestResult,
+  GrammarRequestError,
+} from "../Types/GrammarTypes";
 
 import "./Panes.css";
 
 interface IProps {
   grammarResponse: GrammarRequestResult | undefined;
+  grammarError: GrammarRequestError | undefined;
   isGrammarCompiled: boolean | undefined;
   sequentialPaletteId: string | undefined;
   themeMode: ThemeMode | undefined;
   setIsGrammarCompiled: (isIt: boolean) => void;
+  setShowWarning: (newShowWarning: boolean) => void;
+  setShowGrammarError: (newShowGrammarError: boolean) => void;
   setGrammarResponse: (response: GrammarRequestResult) => void;
+  setGrammarError: (error: GrammarRequestError | undefined) => void;
 }
 
 export const GrammarTools = (props: IProps) => {
@@ -44,6 +53,30 @@ export const GrammarTools = (props: IProps) => {
     }
   };
 
+  const processGrammarResponse = (
+    grammarResponse: GrammarRequestResult | GrammarRequestError | undefined
+  ) => {
+    if (grammarResponse === undefined) {
+      props.setIsGrammarCompiled(false);
+      return;
+    } else if (instanceOfGrammarRequestResult(grammarResponse)) {
+      props.setGrammarResponse(grammarResponse);
+      props.setIsGrammarCompiled(true);
+      props.setGrammarError(undefined);
+      props.setShowGrammarError(false);
+      if (
+        grammarResponse.warnings !== undefined &&
+        grammarResponse.warnings.length > 0
+      ) {
+        props.setShowWarning(true);
+      }
+    } else if (instanceOfGrammarRequestError(grammarResponse)) {
+      props.setIsGrammarCompiled(false);
+      props.setGrammarError(grammarResponse);
+      props.setShowGrammarError(true);
+    }
+  };
+
   const handleCompileGrammarClick = async () => {
     if (grammarRoot === undefined || grammarRoot === "") {
       console.error("No Grammar Root defined.");
@@ -53,12 +86,7 @@ export const GrammarTools = (props: IProps) => {
       return;
     }
     const grammarResponse = await uploadGrammar(grammar, grammarRoot);
-    if (grammarResponse !== undefined) {
-      props.setGrammarResponse(grammarResponse);
-      props.setIsGrammarCompiled(true);
-    } else {
-      props.setIsGrammarCompiled(false);
-    }
+    processGrammarResponse(grammarResponse);
   };
 
   const handleFilePickChange = async (file: File) => {
@@ -72,7 +100,7 @@ export const GrammarTools = (props: IProps) => {
     const fileGrammar = await file.text();
     setGrammar(fileGrammar);
     const grammarResponse = await uploadGrammarFromFile(file, grammarRoot);
-    props.setGrammarResponse(grammarResponse);
+    processGrammarResponse(grammarResponse);
   };
 
   return (
