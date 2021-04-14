@@ -1,6 +1,8 @@
 import { ANTLRErrorListener, RecognitionException, Recognizer } from "antlr4ts";
 
 export class CustomAntlrErrorListener implements ANTLRErrorListener<any> {
+  errosStack: CodeProcessingError[] = [];
+
   syntaxError(
     recognizer: Recognizer<any, any>,
     offendingSymbol: any,
@@ -9,7 +11,9 @@ export class CustomAntlrErrorListener implements ANTLRErrorListener<any> {
     msg: string,
     e: RecognitionException | undefined,
   ): void {
-    throw new CodeProcessingError(msg, line, charPositionInLine);
+    this.errosStack.push(
+      new CodeProcessingError(msg, line, charPositionInLine),
+    );
   }
 }
 

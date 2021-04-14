@@ -1,5 +1,8 @@
 import { RequestError } from "../errors/requestError";
-import { CodeProcessingError } from "../errors/CustomAntlrErrorListener";
+import {
+  CodeProcessingError,
+  CustomAntlrErrorListener,
+} from "../errors/CustomAntlrErrorListener";
 
 export const generateAST = async (req: any, res: any): Promise<void> => {
   if (req.body.code === undefined) {
@@ -39,41 +42,44 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   const lexerClass = grammarLexer[`${grammar.name}Lexer`];
   const ruleNames = lexerClass.ruleNames;
   const literals = lexerClass._LITERAL_NAMES;
-  let lexer, result, parser, parseTree;
-  try {
-    lexer = getLexer(codeString);
-    // Generating the tokens
-    result = lexer.getAllTokens();
-  } catch (error) {
-    if (error instanceof CodeProcessingError)
-      return res
+
+  const lexer = getLexer(codeString);
+  // Generating the tokens
+  const result = lexer.getAllTokens();
+  /*return res
         .status(400)
-        .json({ message: error.message, line: error.line, col: error.col });
-    return res.status(500).json(error);
-  }
+        .json({ message: error.message, line: error.line, col: error.col });*/
+
+  // return res.status(500).json(error);
+
+  const lexerErrors: CustomAntlrErrorListener = lexer.getErrorListeners()[0];
+
+  console.log("LEXING DONE, nb errors:", lexerErrors.errosStack.length);
 
   // Generating the parse tree
   const getParserFromLexer = parserModule.default;
-  try {
-    parser = getParserFromLexer(lexer);
-  } catch (error) {
+  const parser = getParserFromLexer(lexer);
+  /*
     if (error instanceof CodeProcessingError)
       return res
         .status(400)
         .json({ message: error.message, line: error.line, col: error.col });
     return res.status(500).json(error);
-  }
+  */
+
+  const parserErrors: CustomAntlrErrorListener = parser.getErrorListeners()[0];
+
+  console.log("PARSING DONE, nb errors:", parserErrors.errosStack.length);
 
   const getParseTree = parseTreeModule.default;
-  try {
-    parseTree = getParseTree(codeString);
-  } catch (error) {
+  const parseTree = getParseTree(codeString);
+  /*
     if (error instanceof CodeProcessingError)
       return res
         .status(400)
         .json({ message: error.message, line: error.line, col: error.col });
     return res.status(500).json(error);
-  }
+  */
 
   const orgChart = generateChart(parseTree, parser, ruleNames, literals);
 
@@ -92,6 +98,11 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
     code: codeString,
     tokens: tokens,
     orgChart: orgChart,
+    lexerErrors: lexerErrors.errosStack.map((error: CodeProcessingError) => ({
+      message: error.message,
+      line: error.line,
+      col: error.col,
+    })),
   });
 };
 
@@ -105,14 +116,17 @@ const generateChart = (
   const isTerminalNode = parseTree.children === undefined;
 
   if (isTerminalNode) {
-    let name: string = ruleNames[parseTree.symbol.type - 1];
-    if (name.startsWith("T__")) {
-      const ind = parseInt(name.substring(3));
-      name = literals[ind + 1];
+    if (parseTree.symbol) {
+      let name: string = ruleNames[parseTree.symbol.type - 1];
+      if (name.startsWith("T__")) {
+        const ind = parseInt(name.substring(3));
+        name = literals[ind + 1];
+      }
+      return new ChartNode(name, undefined, {
+        content: parseTree.text,
+      });
     }
-    return new ChartNode(name, undefined, {
-      content: parseTree.text,
-    });
+    return new ChartNode("", undefined, undefined);
   } else {
     const name = stringTree.split(" ")[0].slice(1);
     const children: ChartNode[] = [];
