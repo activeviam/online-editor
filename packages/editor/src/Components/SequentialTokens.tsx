@@ -15,9 +15,12 @@ export const SequentialTokens = (props: IProps) => {
       {props.sequentialThemeProvider !== undefined &&
         [...props.sequentialThemeProvider.colorsAssigned].map(
           ([tokenPragmaticId, _], index) => (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div className="token-info" key={index}>
-                <li>
+            <div
+              style={{ display: "flex", justifyContent: "center" }}
+              key={index}
+            >
+              <div className="token-info">
+                <li key={index}>
                   <Typography className="token-name">{`${tokenPragmaticId} `}</Typography>
                   <div
                     style={{

@@ -64,14 +64,20 @@ export const TokenizeTools = (props: IProps) => {
   const { setParsedCustomLanguage, setParseError, setShowParseError } = props;
   const processParseReponse = useCallback(
     (parseResponse: ParsedCustomLanguage | ParseError | undefined) => {
-      if (parseResponse === undefined) {
-        return;
-      } else if (instanceOfParsedCustomLanguage(parseResponse)) {
-        setParsedCustomLanguage(parseResponse);
-        setShowParseError(false);
-      } else if (instanceOfParseError(parseResponse)) {
-        setParseError(parseResponse);
-        setShowParseError(true);
+      try {
+        if (parseResponse === undefined) {
+          return;
+        } else if (instanceOfParsedCustomLanguage(parseResponse)) {
+          setParsedCustomLanguage(parseResponse);
+          setShowParseError(false);
+        } else if (instanceOfParseError(parseResponse)) {
+          setParseError(parseResponse);
+          setShowParseError(true);
+        }
+      } catch (e) {
+        console.error(
+          `Error processing parse response. Received exception ${e}`
+        );
       }
     },
     [setParsedCustomLanguage, setShowParseError, setParseError]
