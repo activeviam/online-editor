@@ -49,55 +49,57 @@ export const CustomTokenWithColorPicker = ({
   }, [tokenCardRef, colorPickerRef, isColorPickerOpen, setIsColorPickerOpen]);
 
   return (
-    <div className="token-info" key={id}>
-      <li
-        className="token-li"
-        onClick={() => {
-          setIsColorPickerOpen(true);
-        }}
-      >
-        <Typography className="token-name">{`${tokenName} `}</Typography>
-        <div
-          ref={tokenCardRef}
-          style={{
-            background: "#" + getColorCallback(tokenName),
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <div className="token-info" key={id}>
+        <li
+          className="token-li"
+          onClick={() => {
+            setIsColorPickerOpen(true);
           }}
-          className="rectangle"
-        />
-      </li>
-      <Popover
-        open={isColorPickerOpen}
-        anchorEl={tokenCardRef.current}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-      >
-        <div ref={colorPickerRef}>
-          <SketchPicker
-            color={color}
-            onChange={(color) => {
-              customThemeProvider.customizeColor(
-                tokenName,
-                color.hex.substring(1)
-              );
-              setColor(color.hex);
+        >
+          <Typography className="token-name">{`${tokenName} `}</Typography>
+          <div
+            ref={tokenCardRef}
+            style={{
+              background: "#" + getColorCallback(tokenName),
             }}
-            onChangeComplete={(color) => {
-              customThemeProvider.customizeColor(
-                tokenName,
-                color.hex.substring(1)
-              );
-              setColor(color.hex);
-            }}
-            disableAlpha
+            className="rectangle"
           />
-        </div>
-      </Popover>
+        </li>
+        <Popover
+          open={isColorPickerOpen}
+          anchorEl={tokenCardRef.current}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+        >
+          <div ref={colorPickerRef}>
+            <SketchPicker
+              color={color}
+              onChange={(color) => {
+                customThemeProvider.customizeColor(
+                  tokenName,
+                  color.hex.substring(1)
+                );
+                setColor(color.hex);
+              }}
+              onChangeComplete={(color) => {
+                customThemeProvider.customizeColor(
+                  tokenName,
+                  color.hex.substring(1)
+                );
+                setColor(color.hex);
+              }}
+              disableAlpha
+            />
+          </div>
+        </Popover>
+      </div>
     </div>
   );
 };

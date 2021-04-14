@@ -102,7 +102,7 @@ export const GrammarInfo = (props: IProps) => {
     <div className="grammar-info-pane">
       {props.grammarResponse!.warnings && (
         <ReactModal
-          isOpen={props.showWarning}
+          isOpen={props.showWarning || false}
           onAfterClose={() => props.setShowWarning(false)}
           ariaHideApp={false}
           style={{

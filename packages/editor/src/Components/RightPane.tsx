@@ -94,8 +94,6 @@ export const RightPane = (props: IProps) => {
       <div className="status-pane">
         <TabPanel value={props.tabValue} index={0}>
           <Paper className="status-paper" elevation={2}>
-            {props.showGrammarError === false &&
-              props.grammarResponse !== undefined && <GrammarInfo {...props} />}
             {props.showGrammarError === true &&
               props.grammarError !== undefined && (
                 <ul>
@@ -106,6 +104,8 @@ export const RightPane = (props: IProps) => {
                   ))}
                 </ul>
               )}
+            {props.showGrammarError === false &&
+              props.grammarResponse !== undefined && <GrammarInfo {...props} />}
           </Paper>
         </TabPanel>
         <TabPanel value={props.tabValue} index={1}>

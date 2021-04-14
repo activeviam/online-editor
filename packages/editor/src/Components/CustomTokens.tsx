@@ -16,18 +16,8 @@ interface IProps {
 
 export const CustomTokens = (props: IProps) => {
   return (
-    <div style={{ height: "100%", width: "100%" }}>
-      <ul
-        style={{
-          padding: "12px",
-          height: "100%",
-          width: "50%",
-          listStyle: "none",
-          display: "flex",
-          flexDirection: "column",
-          placeItems: "center",
-        }}
-      >
+    <div style={{ height: "100%", width: "100%", paddingBottom: "25px" }}>
+      <ul className="token-ul">
         {props.customThemeProvider.nonCategorizedTokens.map(
           (tokenName: string, index: number) => (
             <CustomTokenWithColorPicker
@@ -39,7 +29,6 @@ export const CustomTokens = (props: IProps) => {
           )
         )}
       </ul>
-      <div className="token-categories"></div>
     </div>
   );
 };

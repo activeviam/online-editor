@@ -17,6 +17,7 @@ import {
 } from "../TokenizeTheme";
 
 import "./Menu.css";
+import "./CustomizeTheme.css";
 
 interface IProps {
   customThemeProvider: CustomThemeProvider;
