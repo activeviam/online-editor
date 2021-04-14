@@ -11,24 +11,26 @@ interface IProps {
 
 export const SequentialTokens = (props: IProps) => {
   return (
-    <ul className="token-list">
+    <ul className="token-ul">
       {props.sequentialThemeProvider !== undefined &&
         [...props.sequentialThemeProvider.colorsAssigned].map(
           ([tokenPragmaticId, _], index) => (
-            <div className="token-info" key={index}>
-              <li>
-                <Typography className="token-name">{`${tokenPragmaticId} `}</Typography>
-                <div
-                  style={{
-                    background:
-                      "#" +
-                      props.sequentialThemeProvider!.getTokenColor(
-                        tokenPragmaticId
-                      ),
-                  }}
-                  className="rectangle"
-                />
-              </li>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <div className="token-info" key={index}>
+                <li>
+                  <Typography className="token-name">{`${tokenPragmaticId} `}</Typography>
+                  <div
+                    style={{
+                      background:
+                        "#" +
+                        props.sequentialThemeProvider!.getTokenColor(
+                          tokenPragmaticId
+                        ),
+                    }}
+                    className="rectangle"
+                  />
+                </li>
+              </div>
             </div>
           )
         )}

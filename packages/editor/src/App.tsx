@@ -19,6 +19,8 @@ import {
 import { ParsedCustomLanguage, ParseError } from "./Types/TokenizeTypes";
 
 import "./App.css";
+import { HowToUseModal } from "./Components/HowToUseModal";
+import { AboutUsModal } from "./Components/AboutUsModal";
 
 const App = () => {
   const [grammarResponse, setGrammarResponse] = useLocalStorage<
@@ -77,6 +79,9 @@ const App = () => {
     sequentialPaletteId || sequentialPaletteIds[0]
   );
 
+  const [showHowToUse, setShowHowToUse] = useState(false);
+  const [showAboutUs, setShowAboutUs] = useState(false);
+
   const [tabValue, setTabValue] = useState(0);
 
   return (
@@ -95,11 +100,29 @@ const App = () => {
         </AppBar>
         <div className="application-details">
           <div className="application-details-divider" />
-          <Typography variant="h2" style={{ fontSize: 18 }}>
-            about
+          <AboutUsModal
+            isOpen={showAboutUs}
+            setShowAboutUs={setShowAboutUs}
+            onAfterClose={() => setShowAboutUs(false)}
+          />
+          <Typography
+            variant="h2"
+            style={{ fontSize: 18, cursor: "pointer" }}
+            onClick={() => setShowAboutUs(true)}
+          >
+            about us
           </Typography>
           <div className="application-details-divider" />
-          <Typography variant="h2" style={{ fontSize: 18 }}>
+          <HowToUseModal
+            isOpen={showHowToUse}
+            setShowHowToUse={setShowHowToUse}
+            onAfterClose={() => setShowHowToUse(false)}
+          />
+          <Typography
+            variant="h2"
+            style={{ fontSize: 18, cursor: "pointer" }}
+            onClick={() => setShowHowToUse(true)}
+          >
             how to use
           </Typography>
           <div className="application-details-divider" />
