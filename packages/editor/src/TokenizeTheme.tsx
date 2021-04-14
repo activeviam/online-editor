@@ -203,8 +203,6 @@ export class SequentialThemeProvider extends TokenizeThemeProvider {
     colorsAssigned: Map<TokenPragmaticId, TokenizeColor>
   ) => Map<TokenPragmaticId, TokenizeColor> | undefined)[];
 
-  currentColorCounter: number;
-
   constructor(
     tokenPragmaticIds: TokenPragmaticId[],
     colorPaletteId: SequentialPaletteId,
@@ -214,7 +212,6 @@ export class SequentialThemeProvider extends TokenizeThemeProvider {
     this.colorPaletteId = colorPaletteId;
     this.colorPalette = [];
     this.postFilters = [];
-    this.currentColorCounter = 0;
     const colorPalette = getSequentialColorPalette(colorPaletteId);
     if (colorPalette === undefined) {
       console.warn(
@@ -257,26 +254,16 @@ export class SequentialThemeProvider extends TokenizeThemeProvider {
   }
 
   private attributeSequentialColors(tokenPragmaticIds: TokenPragmaticId[]) {
-    tokenPragmaticIds.forEach((tokenPragmaticId) => {
+    tokenPragmaticIds.forEach((tokenPragmaticId, index) => {
       this.colorsAssigned.set(
         tokenPragmaticId,
-        this.colorPalette[this.currentColorCounter % this.colorPalette.length]
+        this.colorPalette[index % this.colorPalette.length]
       );
-      this.currentColorCounter =
-        (this.currentColorCounter + 1) % this.colorPalette.length;
     });
-  }
-
-  public changeColorPalette(newPaletteId: SequentialPaletteId) {
-    this.colorPaletteId = newPaletteId;
-    const tokenPragmaticIds = [...this.colorsAssigned.keys()];
-    this.colorsAssigned = new Map();
-    this.attributeSequentialColors(tokenPragmaticIds);
   }
 
   public updateTokens(newTokens: TokenPragmaticId[]) {
     this.colorsAssigned = new Map();
-    this.currentColorCounter = 0;
     this.attributeSequentialColors(newTokens);
   }
 
@@ -343,9 +330,19 @@ export class CustomThemeProvider extends TokenizeThemeProvider {
     this.sequentialFallback.updateTokens(newTokens);
   }
 
-  public changeColorPalette(newPaletteId: SequentialPaletteId) {
+  public changeColorPalette(
+    newPaletteId: SequentialPaletteId,
+    balanceColors?: boolean
+  ) {
     // in this class, changes palette of sequential fallback only
-    this.sequentialFallback.changeColorPalette(newPaletteId);
+    const oldSequentialTokens = [
+      ...this.sequentialFallback.colorsAssigned.keys(),
+    ];
+    this.sequentialFallback = new SequentialThemeProvider(
+      oldSequentialTokens,
+      newPaletteId,
+      balanceColors || false
+    );
   }
 
   public serialize(): { colorsAssigned: string; colorPaletteId: string } {

@@ -56,24 +56,30 @@ export const GrammarTools = (props: IProps) => {
   const processGrammarResponse = (
     grammarResponse: GrammarRequestResult | GrammarRequestError | undefined
   ) => {
-    if (grammarResponse === undefined) {
-      props.setIsGrammarCompiled(false);
-      return;
-    } else if (instanceOfGrammarRequestResult(grammarResponse)) {
-      props.setGrammarResponse(grammarResponse);
-      props.setIsGrammarCompiled(true);
-      props.setGrammarError(undefined);
-      props.setShowGrammarError(false);
-      if (
-        grammarResponse.warnings !== undefined &&
-        grammarResponse.warnings.length > 0
-      ) {
-        props.setShowWarning(true);
+    try {
+      if (grammarResponse === undefined) {
+        props.setIsGrammarCompiled(false);
+        return;
+      } else if (instanceOfGrammarRequestResult(grammarResponse)) {
+        props.setGrammarResponse(grammarResponse);
+        props.setIsGrammarCompiled(true);
+        props.setGrammarError(undefined);
+        props.setShowGrammarError(false);
+        if (
+          grammarResponse.warnings !== undefined &&
+          grammarResponse.warnings.length > 0
+        ) {
+          props.setShowWarning(true);
+        }
+      } else if (instanceOfGrammarRequestError(grammarResponse)) {
+        props.setIsGrammarCompiled(false);
+        props.setGrammarError(grammarResponse);
+        props.setShowGrammarError(true);
       }
-    } else if (instanceOfGrammarRequestError(grammarResponse)) {
-      props.setIsGrammarCompiled(false);
-      props.setGrammarError(grammarResponse);
-      props.setShowGrammarError(true);
+    } catch (e) {
+      console.error(
+        `Error processing grammar response. Received exception ${e}`
+      );
     }
   };
 

@@ -71,6 +71,10 @@ export const GrammarInfo = (props: IProps) => {
         );
         if (customThemeProviderRef.current !== null) {
           customThemeProviderRef.current.updateTokens(tokenPragmaticIds);
+          customThemeProviderRef.current.changeColorPalette(
+            sequentialPaletteId,
+            balanceColors || false
+          );
         } else {
           console.error("No Custom Theme Provider");
         }
