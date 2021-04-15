@@ -36,7 +36,7 @@ interface IProps {
   showGrammarError: boolean | undefined;
   showParseError: boolean | undefined;
   parsedCustomLanguage: ParsedCustomLanguage | undefined;
-  parseError: ParseError | undefined;
+  parseError: ParseError[] | undefined;
   sequentialPaletteId: string | undefined;
   sequentialThemeProvider: SequentialThemeProvider | undefined;
   themeMode: ThemeMode | undefined;
@@ -110,10 +110,17 @@ export const RightPane = (props: IProps) => {
         </TabPanel>
         <TabPanel value={props.tabValue} index={1}>
           <Paper className="status-pane" elevation={2}>
-            {props.showParseError === true &&
-              props.parseError !== undefined && (
-                <Typography>{`${props.parseError.message} (line ${props.parseError.line}, col ${props.parseError.col})`}</Typography>
-              )}
+            {props.showParseError === true && props.parseError !== undefined && (
+              <ul>
+                <Typography>
+                  {props.parseError.map((parseError, index) => (
+                    <li key={index}>
+                      {`${parseError.message} (line ${parseError.line}, col ${parseError.col})\n`}
+                    </li>
+                  ))}
+                </Typography>
+              </ul>
+            )}
             {props.showParseError !== true &&
               props.parsedCustomLanguage !== undefined && (
                 <div style={{ height: "100%", width: "100%" }}>
