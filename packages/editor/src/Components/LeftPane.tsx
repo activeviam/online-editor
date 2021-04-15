@@ -32,7 +32,7 @@ interface IProps {
   sequentialThemeProvider: SequentialThemeProvider | undefined;
   themeMode: ThemeMode | undefined;
   setParsedCustomLanguage: (parsed: ParsedCustomLanguage) => void;
-  setParseError: (newParseError: ParseError | undefined) => void;
+  setParseError: (newParseError: ParseError[] | undefined) => void;
   setGrammarResponse: (response: GrammarRequestResult) => void;
   setShowWarning: (newShowWarning: boolean) => void;
   setShowParseError: (newShowParseError: boolean) => void;

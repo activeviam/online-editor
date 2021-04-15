@@ -31,7 +31,7 @@ const App = () => {
     ParsedCustomLanguage | undefined
   >("parsedCustomLanguage");
 
-  const [parseError, setParseError] = useLocalStorage<ParseError | undefined>(
+  const [parseError, setParseError] = useLocalStorage<ParseError[] | undefined>(
     "parseError",
     undefined
   );

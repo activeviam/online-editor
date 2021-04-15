@@ -12,6 +12,7 @@ export interface ParsedCustomLanguage {
   code: string;
   tokens: TokenInfo[];
   orgChart: any;
+  lexerErrors: ParseError[];
 }
 
 export interface ParseError {
@@ -27,10 +28,7 @@ export const instanceOfParsedCustomLanguage = (
     "ruleNames" in object &&
     "code" in object &&
     "tokens" in object &&
-    "orgChart" in object
+    "orgChart" in object &&
+    "lexerErrors" in object
   );
-};
-
-export const instanceOfParseError = (object: any): object is ParseError => {
-  return "message" in object && "line" in object && "col" in object;
 };

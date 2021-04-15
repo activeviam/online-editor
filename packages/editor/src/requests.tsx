@@ -63,7 +63,7 @@ export const uploadGrammar = async (
 
 export const parseCustomLanguage = async (
   userDefinedLanguage: string
-): Promise<ParsedCustomLanguage | ParseError | undefined> => {
+): Promise<ParsedCustomLanguage | ParseError[] | undefined> => {
   const parsed = await axios
     .post(
       requestUrl + process.env.REACT_APP_ENDPOINT_PARSE,
@@ -72,20 +72,19 @@ export const parseCustomLanguage = async (
       },
       { withCredentials: true }
     )
-    .then((response) => response.data)
+    .then((response) => {
+      const parsedCustomLanguage = response.data as ParsedCustomLanguage;
+      if (parsedCustomLanguage.lexerErrors.length > 0) {
+        return parsedCustomLanguage.lexerErrors;
+      }
+      return parsedCustomLanguage;
+    })
     .catch((error) => {
-      if (error.response === undefined) {
-        console.error("Didn't receive response to parse request.");
-        return undefined;
-      }
       const errorCode = error.response.status;
-      if (errorCode === 400) {
-        return error.response.data as ParseError;
-      } else {
-        console.error(
-          `Received unknown error code ${errorCode} on tokenize request.`
-        );
-      }
+      console.error(
+        `Received unknown error code ${errorCode} on tokenize request.`
+      );
+      return undefined;
     });
   return parsed;
 };

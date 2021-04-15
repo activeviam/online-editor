@@ -18,7 +18,6 @@ import {
 import { GrammarRequestResult } from "../Types/GrammarTypes";
 import {
   instanceOfParsedCustomLanguage,
-  instanceOfParseError,
   ParsedCustomLanguage,
   ParseError,
 } from "../Types/TokenizeTypes";
@@ -32,7 +31,7 @@ interface IProps {
   themeMode: ThemeMode | undefined;
   grammarResponse: GrammarRequestResult | undefined;
   setParsedCustomLanguage: (parsed: ParsedCustomLanguage) => void;
-  setParseError: (newParseError: ParseError | undefined) => void;
+  setParseError: (newParseError: ParseError[] | undefined) => void;
   setShowParseError: (newShowParseError: boolean) => void;
 }
 
@@ -63,14 +62,14 @@ export const TokenizeTools = (props: IProps) => {
 
   const { setParsedCustomLanguage, setParseError, setShowParseError } = props;
   const processParseReponse = useCallback(
-    (parseResponse: ParsedCustomLanguage | ParseError | undefined) => {
+    (parseResponse: ParsedCustomLanguage | ParseError[] | undefined) => {
       try {
         if (parseResponse === undefined) {
           return;
         } else if (instanceOfParsedCustomLanguage(parseResponse)) {
           setParsedCustomLanguage(parseResponse);
           setShowParseError(false);
-        } else if (instanceOfParseError(parseResponse)) {
+        } else {
           setParseError(parseResponse);
           setShowParseError(true);
         }
