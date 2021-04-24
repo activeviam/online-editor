@@ -1,12 +1,15 @@
 .grammar-menu {
-  height: 10%;
+  height: 38px;
+  padding: 4px;
 }
 
-.user-defined-language-menu {
-  height: 10%;
+.custom-language-menu {
+  height: 38px;
+  padding: 4px;
 }
 
 .editor {
+  padding-top: 10px;
   height: 100%;
 }
 
@@ -19,4 +22,32 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
+  box-sizing: border-box;
+}
+
+.status-paper {
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  height: 100%;
+  width: 100%;
+}
+
+.status-pane {
+  padding-top: 10px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.application-details-divider {
+  width: 32px;
+  height: auto;
+  display: inline-block;
+}
+
+.grammar-status {
+  height: 38px;
+  display: flex;
+  padding: 4px;
+  padding-bottom: 4px;
 }

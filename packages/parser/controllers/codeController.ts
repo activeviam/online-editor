@@ -24,7 +24,6 @@ export const generateAST = async (req: any, res: any): Promise<void> => {
   const parserModule = await import(
     `../grammar/${sessionID}/get${grammarName}Parser.ts`
   );
-
   let parseTreeModule;
   try {
     parseTreeModule = await import(

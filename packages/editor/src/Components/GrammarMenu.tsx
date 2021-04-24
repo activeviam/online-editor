@@ -31,12 +31,15 @@ export const GrammarMenu = (props: IProps) => {
             onChange={(e) => {
               props.onChangeRootNode(e.target.value);
             }}
-            placeholder="Grammar Root Node"
-            defaultValue="root"
+            placeholder="Grammar Root"
+            label="grammar root"
+            value={props.grammarRoot}
             error={props.grammarRoot === ""}
             helperText={
               props.grammarRoot === "" ? "Grammar Root Required!" : ""
             }
+            size="small"
+            color="secondary"
             required
           ></TextField>
         </form>
@@ -49,16 +52,22 @@ export const GrammarMenu = (props: IProps) => {
           onChange={handleFilePickerInputChange}
         />
         <label htmlFor="contained-button-file">
-          <Button variant="outlined" color="primary" component="span">
-            Compile Grammar From File
+          <Button
+            variant="outlined"
+            color="secondary"
+            component="span"
+            size="small"
+          >
+            Compile From File
           </Button>
         </label>
 
         <div className="divider"></div>
         <Button
           variant="outlined"
-          color="primary"
+          color="secondary"
           onClick={props.onClickCompileGrammar}
+          size="small"
         >
           Compile Grammar
         </Button>
