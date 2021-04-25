@@ -183,7 +183,7 @@ export const compileGrammarString = (req: any, res: any) => {
   const _path = path.join(GRAMMAR_STORAGE, sessionID); // Path where to store the grammar related files
 
   if (fs.existsSync(_path)) {
-    fs.rmSync(_path, { recursive: true });
+    fs.rmdirSync(_path, { recursive: true });
   }
   fs.mkdirSync(_path, { recursive: true });
 
